@@ -35,10 +35,9 @@
   font-weight: 800;
   letter-spacing: -0.02em;
   position: absolute;
-  mix-blend-mode: difference;
-  color: white;
   user-select: none;
   line-height: 1;
+  transition: color 0.2s ease;
 }
 
 .loader-logo {
@@ -47,8 +46,6 @@
   height: auto;
   opacity: 0;
   transform: scale(0.5);
-  mix-blend-mode: difference;
-  filter: brightness(0) invert(1);
 }
 
 /* Ensure text changes color based on background */
