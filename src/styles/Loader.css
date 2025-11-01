@@ -1,0 +1,63 @@
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.loader-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: #000;
+  z-index: 1;
+}
+
+.loader-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.percentage-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(80px, 15vw, 200px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  position: absolute;
+  mix-blend-mode: difference;
+  color: white;
+  user-select: none;
+  line-height: 1;
+}
+
+.loader-logo {
+  position: absolute;
+  width: clamp(150px, 30vw, 300px);
+  height: auto;
+  opacity: 0;
+  transform: scale(0.5);
+  mix-blend-mode: difference;
+  filter: brightness(0) invert(1);
+}
+
+/* Ensure text changes color based on background */
+@supports not (mix-blend-mode: difference) {
+  .percentage-text {
+    color: #000;
+  }
+  
+  .loader-fill ~ .loader-content .percentage-text {
+    color: #fff;
+  }
+}

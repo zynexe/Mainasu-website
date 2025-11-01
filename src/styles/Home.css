@@ -1,0 +1,26 @@
+.home {
+  min-height: 100vh;
+  width: 100%;
+  background: white;
+  padding: 2rem;
+}
+
+.home-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.home-content h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 2rem;
+}
+
+.home-content p {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: #666;
+  line-height: 1.6;
+}
