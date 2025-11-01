@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import '../styles/Home.css';
 import personIcon from '../assets/person.png';
@@ -8,25 +9,30 @@ import tierList from '../assets/tierList.webp';
 import logo from '../assets/logo.png';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    // Animate cards on mount
-    gsap.fromTo(
-      cardsRef.current,
-      {
-        opacity: 0,
-        y: 50,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power3.out",
+    // Slice animation from left to right
+    cardsRef.current.forEach((card, index) => {
+      if (card) {
+        gsap.fromTo(
+          card,
+          {
+            clipPath: 'inset(0 100% 0 0)',
+            opacity: 0,
+          },
+          {
+            clipPath: 'inset(0 0% 0 0)',
+            opacity: 1,
+            duration: 0.8,
+            delay: index * 0.15,
+            ease: "power3.out",
+          }
+        );
       }
-    );
+    });
   }, []);
 
   const handleCardHover = (index: number, isHovering: boolean) => {
@@ -75,8 +81,7 @@ const Home = () => {
           
           {isDropdownOpen && (
             <div className="dropdown-menu">
-              <button className="dropdown-item">Profile</button>
-              <button className="dropdown-item">Settings</button>
+              <button className="dropdown-item">Change User</button>
               <button className="dropdown-item danger">Logout</button>
             </div>
           )}
@@ -117,7 +122,7 @@ const Home = () => {
           {/* Claim Waifu Card */}
           <div 
             ref={(el) => { cardsRef.current[2] = el; }}
-            className="nav-card blue-border"
+            className="nav-card purple-border"
             onMouseEnter={() => handleCardHover(2, true)}
             onMouseLeave={() => handleCardHover(2, false)}
           >
@@ -130,9 +135,10 @@ const Home = () => {
           {/* About Us Card */}
           <div 
             ref={(el) => { cardsRef.current[3] = el; }}
-            className="nav-card red-border"
+            className="nav-card orange-border"
             onMouseEnter={() => handleCardHover(3, true)}
             onMouseLeave={() => handleCardHover(3, false)}
+            onClick={() => navigate('/about')}
           >
             <div className="card-content">
               <h2 className="card-title">About Us</h2>

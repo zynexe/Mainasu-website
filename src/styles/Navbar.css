@@ -1,0 +1,200 @@
+.page-navbar {
+  background-color: #121212;
+  padding: 1rem 3rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.page-navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1600px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.page-navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.page-navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.page-logo-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.page-logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.page-navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.page-navbar-links {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  background-color: #1e1e1e;
+  border: 1px solid #414141;
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+}
+
+.page-nav-link {
+  color: #888;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  transition: color 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.page-nav-link:hover {
+  color: #aaa;
+}
+
+.page-nav-link.active {
+  color: white;
+  font-weight: 700;
+}
+
+.page-navbar-profile {
+  position: relative;
+}
+
+.page-profile-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: transparent;
+  border: 1px solid #414141;
+  border-radius: 50px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.page-profile-button:hover {
+  background-color: #1e1e1e;
+}
+
+.page-profile-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  padding: 3px;
+}
+
+.page-username {
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.page-dropdown-arrow {
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.page-dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.page-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background-color: #1e1e1e;
+  border: 1px solid #414141;
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-dropdown-item {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.page-dropdown-item:hover {
+  background-color: #2a2a2a;
+}
+
+.page-dropdown-item.danger {
+  color: #ff6b6b;
+}
+
+.page-dropdown-item.danger:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .page-navbar {
+    padding: 1rem 2rem;
+  }
+
+  .page-navbar-links {
+    gap: 0;
+    padding: 0.4rem 1rem;
+  }
+
+  .page-nav-link {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .page-navbar-center {
+    display: none;
+  }
+
+  .page-logo-text {
+    font-size: 1.1rem;
+  }
+}

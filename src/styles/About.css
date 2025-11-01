@@ -1,0 +1,245 @@
+.about-page {
+  min-height: 100vh;
+  background-color: #121212;
+  color: white;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.about-content {
+  padding: 3rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.about-box {
+  background-color: #1e1e1e;
+  border: 1px solid #808080;
+  border-radius: 20px;
+  padding: 2.5rem;
+}
+
+/* Left Column - Mainasu and Members */
+.mainasu-box {
+  grid-column: 1;
+  margin-bottom: 2rem;
+}
+
+.members-box {
+  grid-column: 1;
+}
+
+/* Right Column - Credit Box (Fixed) */
+.credit-box {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  position: sticky;
+  top: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Mainasu Box */
+.box-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mainasu-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.mainasu-info {
+  flex: 1;
+}
+
+.mainasu-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.mainasu-subtitle {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.mainasu-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+/* Members Box */
+.box-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.member-avatar.default {
+  background-color: #2a2a2a;
+  padding: 8px;
+}
+
+.member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-role {
+  font-size: 0.8rem;
+  color: #888;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Credit Section */
+.credit-section {
+  flex: 1;
+}
+
+.credit-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.credit-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.credit-info {
+  flex: 1;
+}
+
+.credit-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.credit-role {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Tech Stack Section */
+.techstack-section {
+  flex: 1;
+}
+
+.techstack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.tech-icon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .about-grid {
+    grid-template-columns: 1fr 350px;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .techstack-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .about-content {
+    padding: 2rem;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mainasu-box,
+  .members-box,
+  .credit-box {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .credit-box {
+    position: relative;
+    top: 0;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .about-content {
+    padding: 1.5rem;
+  }
+
+  .about-box {
+    padding: 1.5rem;
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .techstack-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

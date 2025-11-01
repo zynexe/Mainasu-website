@@ -138,9 +138,9 @@
 }
 
 .welcome-text {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
   font-weight: 700;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   letter-spacing: -0.02em;
 }
 
@@ -148,7 +148,7 @@
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  gap: 1rem;
   margin-bottom: 3rem;
 }
 
@@ -160,16 +160,49 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  border: 2px solid transparent;
+  border: 1px solid #808080;
   min-height: 200px;
 }
 
+/* Gradient borders on hover */
 .nav-card.blue-border {
-  border-color: #4a90e2;
+  border: 1px solid #808080;
+}
+
+.nav-card.blue-border:hover {
+  border: 1px solid transparent;
+  background: linear-gradient(#1e1e1e, #1e1e1e) padding-box,
+              linear-gradient(to bottom, #000000, #4a90e2) border-box;
 }
 
 .nav-card.red-border {
-  border-color: #e24a4a;
+  border: 1px solid #808080;
+}
+
+.nav-card.red-border:hover {
+  border: 1px solid transparent;
+  background: linear-gradient(#1e1e1e, #1e1e1e) padding-box,
+              linear-gradient(to bottom, #000000, #e24a4a) border-box;
+}
+
+.nav-card.purple-border {
+  border: 1px solid #808080;
+}
+
+.nav-card.purple-border:hover {
+  border: 1px solid transparent;
+  background: linear-gradient(#1e1e1e, #1e1e1e) padding-box,
+              linear-gradient(to bottom, #000000, #9b59b6) border-box;
+}
+
+.nav-card.orange-border {
+  border: 1px solid #808080;
+}
+
+.nav-card.orange-border:hover {
+  border: 1px solid transparent;
+  background: linear-gradient(#1e1e1e, #1e1e1e) padding-box,
+              linear-gradient(to bottom, #000000, #d35400) border-box;
 }
 
 .card-content {
@@ -182,16 +215,25 @@
 }
 
 .card-title {
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  font-weight: 700;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 500;
   letter-spacing: -0.02em;
 }
 
 .card-icon {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.nav-card:hover .card-icon {
+  opacity: 1;
+  transform: translateX(0);
+
 }
 
 .waifu-icon {
