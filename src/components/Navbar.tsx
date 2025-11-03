@@ -1,8 +1,8 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import '../styles/Navbar.css';
-import logo from '../assets/logo.png';
-import personIcon from '../assets/person.png';
-import { useState } from 'react';
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import "../styles/Navbar.css";
+import logo from "../assets/logo.png";
+import personIcon from "../assets/person.png";
+import { useState } from "react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -14,34 +14,36 @@ const Navbar = () => {
   return (
     <nav className="page-navbar">
       <div className="page-navbar-container">
-        <div className="page-navbar-logo" onClick={() => navigate('/')}>
+        <div className="page-navbar-logo" onClick={() => navigate("/")}>
           <img src={logo} alt="Mainasu Logo" className="page-logo-icon" />
           <span className="page-logo-text">Mainasu</span>
         </div>
 
         <div className="page-navbar-center">
           <div className="page-navbar-links">
-            <Link 
-              to="/tierlist" 
-              className={`page-nav-link ${isActive('/tierlist') ? 'active' : ''}`}
+            <Link
+              to="/tierlist"
+              className={`page-nav-link ${
+                isActive("/tierlist") ? "active" : ""
+              }`}
             >
               Tierlist
             </Link>
-            <Link 
-              to="/waifu" 
-              className={`page-nav-link ${isActive('/waifu') ? 'active' : ''}`}
+            <Link
+              to="/waifu"
+              className={`page-nav-link ${isActive("/waifu") ? "active" : ""}`}
             >
               Waifu's
             </Link>
-            <Link 
-              to="/rating" 
-              className={`page-nav-link ${isActive('/rating') ? 'active' : ''}`}
+            <Link
+              to="/rating"
+              className={`page-nav-link ${isActive("/rating") ? "active" : ""}`}
             >
               Rating
             </Link>
-            <Link 
-              to="/about" 
-              className={`page-nav-link ${isActive('/about') ? 'active' : ''}`}
+            <Link
+              to="/about"
+              className={`page-nav-link ${isActive("/about") ? "active" : ""}`}
             >
               About
             </Link>
@@ -49,29 +51,29 @@ const Navbar = () => {
         </div>
 
         <div className="page-navbar-profile">
-          <button 
+          <button
             className="page-profile-button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <img src={personIcon} alt="Profile" className="page-profile-icon" />
             <span className="page-username">zynexe</span>
-            <svg 
-              className={`page-dropdown-arrow ${isDropdownOpen ? 'open' : ''}`}
-              width="20" 
-              height="20" 
-              viewBox="0 0 20 20" 
+            <svg
+              className={`page-dropdown-arrow ${isDropdownOpen ? "open" : ""}`}
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
               fill="none"
             >
-              <path 
-                d="M5 7.5L10 12.5L15 7.5" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
+              <path
+                d="M5 7.5L10 12.5L15 7.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           </button>
-          
+
           {isDropdownOpen && (
             <div className="page-dropdown-menu">
               <button className="page-dropdown-item">Change User</button>

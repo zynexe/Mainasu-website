@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { gsap } from 'gsap';
-import '../styles/Home.css';
-import personIcon from '../assets/person.png';
-import myBini from '../assets/myBini.webp';
-import song from '../assets/song.png';
-import tierList from '../assets/tierList.webp';
-import logo from '../assets/logo.png';
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { gsap } from "gsap";
+import "../styles/Home.css";
+import personIcon from "../assets/person.png";
+import myBini from "../assets/myBini.webp";
+import song from "../assets/song.png";
+import tierList from "../assets/tierList.webp";
+import logo from "../assets/logo.png";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,15 +20,14 @@ const Home = () => {
         gsap.fromTo(
           card,
           {
-            clipPath: 'inset(0 100% 0 0)',
+            clipPath: "inset(0 100% 0 0)",
             opacity: 0,
           },
           {
-            clipPath: 'inset(0 0% 0 0)',
+            clipPath: "inset(0 0% 0 0)",
             opacity: 1,
-            duration: 0.8,
+            duration: 0.4,
             delay: index * 0.15,
-            ease: "power3.out",
           }
         );
       }
@@ -50,35 +49,35 @@ const Home = () => {
     <div className="home">
       {/* Navigation Bar */}
       <nav className="navbar">
-        <div className="navbar-logo">
+        <div className="navbar-logo" onClick={() => navigate("/")}>
           <img src={logo} alt="Mainasu Logo" className="logo-icon" />
           <span className="logo-text">Mainasu</span>
         </div>
 
         <div className="navbar-profile">
-          <button 
+          <button
             className="profile-button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <img src={personIcon} alt="Profile" className="profile-icon" />
             <span className="username">zynexe</span>
-            <svg 
-              className={`dropdown-arrow ${isDropdownOpen ? 'open' : ''}`}
-              width="20" 
-              height="20" 
-              viewBox="0 0 20 20" 
+            <svg
+              className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
               fill="none"
             >
-              <path 
-                d="M5 7.5L10 12.5L15 7.5" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
+              <path
+                d="M5 7.5L10 12.5L15 7.5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
           </button>
-          
+
           {isDropdownOpen && (
             <div className="dropdown-menu">
               <button className="dropdown-item">Change User</button>
@@ -91,14 +90,20 @@ const Home = () => {
       {/* Main Content */}
       <main className="main-content">
         <h1 className="welcome-text">Welcome Asu..</h1>
+        <h2 className="welcome-subtext">
+          This is the official Mainasu website.
+        </h2>
 
         <div className="cards-grid">
           {/* Character Tierlist Card */}
-          <div 
-            ref={(el) => { cardsRef.current[0] = el; }}
+          <div
+            ref={(el) => {
+              cardsRef.current[0] = el;
+            }}
             className="nav-card blue-border"
             onMouseEnter={() => handleCardHover(0, true)}
             onMouseLeave={() => handleCardHover(0, false)}
+            onClick={() => navigate("/tierlist")}
           >
             <div className="card-content">
               <h2 className="card-title">Character Tierlist</h2>
@@ -107,11 +112,14 @@ const Home = () => {
           </div>
 
           {/* Rating Lagu Card */}
-          <div 
-            ref={(el) => { cardsRef.current[1] = el; }}
+          <div
+            ref={(el) => {
+              cardsRef.current[1] = el;
+            }}
             className="nav-card red-border"
             onMouseEnter={() => handleCardHover(1, true)}
             onMouseLeave={() => handleCardHover(1, false)}
+            onClick={() => navigate("/rating")}
           >
             <div className="card-content">
               <h2 className="card-title">Rating Lagu</h2>
@@ -120,29 +128,42 @@ const Home = () => {
           </div>
 
           {/* Claim Waifu Card */}
-          <div 
-            ref={(el) => { cardsRef.current[2] = el; }}
+          <div
+            ref={(el) => {
+              cardsRef.current[2] = el;
+            }}
             className="nav-card purple-border"
             onMouseEnter={() => handleCardHover(2, true)}
             onMouseLeave={() => handleCardHover(2, false)}
+            onClick={() => navigate("/waifu")}
           >
             <div className="card-content">
               <h2 className="card-title">Claim Waifu</h2>
-              <img src={myBini} alt="Claim Waifu" className="card-icon waifu-icon" />
+              <img
+                src={myBini}
+                alt="Claim Waifu"
+                className="card-icon waifu-icon"
+              />
             </div>
           </div>
 
           {/* About Us Card */}
-          <div 
-            ref={(el) => { cardsRef.current[3] = el; }}
+          <div
+            ref={(el) => {
+              cardsRef.current[3] = el;
+            }}
             className="nav-card orange-border"
             onMouseEnter={() => handleCardHover(3, true)}
             onMouseLeave={() => handleCardHover(3, false)}
-            onClick={() => navigate('/about')}
+            onClick={() => navigate("/about")}
           >
             <div className="card-content">
               <h2 className="card-title">About Us</h2>
-              <img src={logo} alt="About Us" className="card-icon logo-icon-card" />
+              <img
+                src={logo}
+                alt="About Us"
+                className="card-icon logo-icon-card"
+              />
             </div>
           </div>
         </div>
