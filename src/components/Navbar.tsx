@@ -2,14 +2,49 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import logo from "../assets/logo.png";
 import personIcon from "../assets/person.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface User {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+}
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Get current user from localStorage
+    const storedUser = localStorage.getItem("currentUser");
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    } else {
+      // Default user
+      setCurrentUser({
+        id: "1",
+        name: "zynexe",
+        role: "Web Designer/Developer",
+        avatar: personIcon,
+      });
+    }
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleChangeUser = () => {
+    setIsDropdownOpen(false);
+    navigate("/change-user");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    setIsDropdownOpen(false);
+    // You can add logout logic here
+  };
 
   return (
     <nav className="page-navbar">
@@ -55,8 +90,14 @@ const Navbar = () => {
             className="page-profile-button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
-            <img src={personIcon} alt="Profile" className="page-profile-icon" />
-            <span className="page-username">zynexe</span>
+            <img
+              src={currentUser?.avatar || personIcon}
+              alt="Profile"
+              className="page-profile-icon"
+            />
+            <span className="page-username">
+              {currentUser?.name || "Guest"}
+            </span>
             <svg
               className={`page-dropdown-arrow ${isDropdownOpen ? "open" : ""}`}
               width="20"
@@ -76,8 +117,15 @@ const Navbar = () => {
 
           {isDropdownOpen && (
             <div className="page-dropdown-menu">
-              <button className="page-dropdown-item">Change User</button>
-              <button className="page-dropdown-item danger">Logout</button>
+              <button className="page-dropdown-item" onClick={handleChangeUser}>
+                Change User
+              </button>
+              <button
+                className="page-dropdown-item danger"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>
