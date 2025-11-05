@@ -11,7 +11,7 @@ import logo from "../assets/logo.png";
 const Home = () => {
   const navigate = useNavigate();
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [_isFirstVisit, setIsFirstVisit] = useState(false);
 
   useEffect(() => {
     // Check if user has visited before

@@ -153,8 +153,9 @@ const Waifu = () => {
             await supabase.storage.from("waifus").remove([oldFileName]);
           }
 
-          image_url = await uploadWaifuImage(data.image);
-          if (!image_url) return;
+          const uploadedUrl = await uploadWaifuImage(data.image);
+          if (!uploadedUrl) return; // Exit if upload failed
+          image_url = uploadedUrl; // ✅ Now TypeScript knows it's not null
         }
 
         // Update waifu in database
@@ -173,8 +174,10 @@ const Waifu = () => {
           return;
         }
 
-        const image_url = await uploadWaifuImage(data.image);
-        if (!image_url) return;
+        const uploadedUrl = await uploadWaifuImage(data.image);
+        if (!uploadedUrl) return; // Exit if upload failed
+
+        const image_url = uploadedUrl; // ✅ Now TypeScript knows it's not null
 
         // Insert new waifu
         const { error } = await supabase.from("waifus").insert([
