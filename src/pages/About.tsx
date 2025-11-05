@@ -99,7 +99,7 @@ const About = () => {
               <img src={logo} alt="Mainasu" className="mainasu-logo" />
               <div className="mainasu-info">
                 <h2 className="mainasu-title">Mainasu</h2>
-                <p className="mainasu-subtitle">Founded in 20xx</p>
+                <p className="mainasu-subtitle">Founded in 2020</p>
               </div>
             </div>
             <p className="mainasu-description">
