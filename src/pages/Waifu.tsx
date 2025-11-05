@@ -244,8 +244,18 @@ const Waifu = () => {
     setCurrentPage(1);
   };
 
+  // Filter and sort members: current user first, then others
+  const sortedMembers = [...members].sort((a, b) => {
+    // Current user always comes first
+    if (currentUser) {
+      if (a.id === currentUser.id) return -1;
+      if (b.id === currentUser.id) return 1;
+    }
+    return 0; // Keep original order for others
+  });
+
   // Filter members based on search
-  const filteredMembers = members.filter(
+  const filteredMembers = sortedMembers.filter(
     (member) =>
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
