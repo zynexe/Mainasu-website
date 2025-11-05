@@ -4,7 +4,8 @@ import MobileNavbar from "../components/MobileNavbar";
 import "../styles/About.css";
 import logo from "../assets/logo.png";
 import zynexe from "../assets/zynexe-profile-pic.jpg";
-import founder from "../assets/founder.webp"; // Add this import
+import founder from "../assets/founder.webp";
+import personIcon from "../assets/Founder2.webp";
 import reactIcon from "../assets/react.svg";
 import viteIcon from "../assets/vite-icon.webp";
 import supabaseIcon from "../assets/supabase-icon.webp";
@@ -42,7 +43,7 @@ const About = () => {
       const { data: usersData, error: usersError } = await supabase
         .from("users")
         .select("*")
-        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
+        .order("created_at", { ascending: true });
 
       if (usersError) throw usersError;
 
@@ -50,7 +51,7 @@ const About = () => {
       const { data: waifusData, error: waifusError } = await supabase
         .from("waifus")
         .select("*")
-        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
+        .order("created_at", { ascending: true });
 
       if (waifusError) throw waifusError;
 
@@ -161,11 +162,20 @@ const About = () => {
             <div className="credit-section">
               <h3 className="box-title">Credit</h3>
 
-              {/* Founder - Tendensius */}
+              {/* Founder 1 - Tendensius */}
               <div className="credit-item">
                 <img src={founder} alt="Tendensius" className="credit-avatar" />
                 <div className="credit-info">
                   <p className="credit-name">Tendensius</p>
+                  <p className="credit-role">Founder</p>
+                </div>
+              </div>
+
+              {/* Founder 2 - R.R. */}
+              <div className="credit-item">
+                <img src={personIcon} alt="R.R." className="credit-avatar" />
+                <div className="credit-info">
+                  <p className="credit-name">R.R.</p>
                   <p className="credit-role">Founder</p>
                 </div>
               </div>
