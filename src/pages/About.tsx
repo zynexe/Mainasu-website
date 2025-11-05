@@ -104,7 +104,7 @@ const About = () => {
             </div>
             <p className="mainasu-description">
               The name "Mainasu" came from the word "main" and "asu" which means
-              "come play shitheads". The name is chosen so that friends that are
+              "come play bitches". The name is chosen so that friends that are
               close enough to get called "asu" could play together, we belive in
               hating our own friends for a long lasting friendship and the study
               show that!
