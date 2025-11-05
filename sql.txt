@@ -1,0 +1,29 @@
+-- Create users table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  avatar_url TEXT
+);
+
+-- Create waifus table
+CREATE TABLE waifus (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  image_url TEXT NOT NULL
+);
+
+-- Enable Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE waifus ENABLE ROW LEVEL SECURITY;
+
+-- Create policies (allow all operations for now - we'll secure later)
+CREATE POLICY "Enable all operations for users" ON users
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Enable all operations for waifus" ON waifus
+  FOR ALL USING (true) WITH CHECK (true);

@@ -10,7 +10,6 @@ import About from "./pages/About";
 import Waifu from "./pages/Waifu";
 import ChangeUser from "./components/ChangeUser";
 import Loader from "./components/Loader";
-import { supabase } from "./lib/supabase";
 import "./App.css";
 
 function App() {
@@ -22,15 +21,6 @@ function App() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // Test Supabase connection
-    const testConnection = async () => {
-      const { data, error } = await supabase.from("users").select("*");
-      console.log("Supabase Test:", { data, error });
-    };
-    testConnection();
   }, []);
 
   if (loading) {
