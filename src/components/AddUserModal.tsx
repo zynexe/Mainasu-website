@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { X, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
 import "../styles/AddUserModal.css";
 
 interface AddUserModalProps {
@@ -7,139 +6,141 @@ interface AddUserModalProps {
   onClose: () => void;
   onSubmit: (data: { name: string; role: string; image: File | null }) => void;
   editMode?: boolean;
-  initialData?: { name: string; role: string; avatar_url?: string | null };
+  initialData?: {
+    name: string;
+    role: string;
+    avatar_url: string | null;
+  };
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({
+const AddUserModal = ({
   isOpen,
   onClose,
   onSubmit,
   editMode = false,
   initialData,
-}) => {
-  const [name, setName] = useState(initialData?.name || "");
-  const [role, setRole] = useState(initialData?.role || "");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>(initialData?.avatar_url || "");
-  const [error, setError] = useState("");
+}: AddUserModalProps) => {
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (editMode && initialData) {
+      setName(initialData.name);
+      setRole(initialData.role);
+      setPreviewUrl(initialData.avatar_url);
+      setImage(null); // Reset image file
+    } else {
+      // Reset form when adding new user
+      setName("");
+      setRole("");
+      setImage(null);
+      setPreviewUrl(null);
+    }
+  }, [editMode, initialData, isOpen]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (1MB = 1048576 bytes)
-      if (file.size > 1048576) {
-        setError("File size must be less than 1MB");
-        return;
-      }
-
-      // Check file type
-      if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-        setError("Only PNG and JPG files are allowed");
-        return;
-      }
-
-      setError("");
-      setImageFile(file);
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setImage(file);
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !role) {
-      setError("Please fill in all required fields");
+    if (!name.trim() || !role.trim()) {
+      alert("Please fill in all fields");
       return;
     }
 
-    if (!imageFile && !editMode && !preview) {
-      setError("Please upload a profile picture");
-      return;
-    }
+    // If editing and no new image selected, pass null (keep existing image)
+    onSubmit({ name: name.trim(), role: role.trim(), image });
 
-    onSubmit({ name, role, image: imageFile });
-    handleClose();
+    // Reset form
+    setName("");
+    setRole("");
+    setImage(null);
+    setPreviewUrl(null);
   };
 
   const handleClose = () => {
+    // Reset form on close
     setName("");
     setRole("");
-    setImageFile(null);
-    setPreview("");
-    setError("");
+    setImage(null);
+    setPreviewUrl(null);
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="add-user-modal-overlay" onClick={handleClose}>
-      <div
-        className="add-user-modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button className="modal-close" onClick={handleClose}>
-          <X size={24} />
-        </button>
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>{editMode ? "Edit User" : "Add New User"}</h2>
+          <button className="modal-close-btn" onClick={handleClose}>
+            ✕
+          </button>
+        </div>
 
-        <h2>{editMode ? "Edit User" : "Add User"}</h2>
-
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
-            <label>Name</label>
+            <label htmlFor="name">Name *</label>
             <input
               type="text"
+              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter name.."
+              placeholder="Enter user name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Role/Jobs/AKA</label>
+            <label htmlFor="role">Role *</label>
             <input
               type="text"
+              id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g., Admin, Jobless, Gooner, etc.."
+              placeholder="Enter user role"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Image (Max 500KB, PNG/JPG)</label>
-            <div className="image-upload">
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/jpg"
-                onChange={handleImageChange}
-                id="profile-image-input"
-              />
-              <label htmlFor="profile-image-input" className="upload-label">
-                {preview ? (
-                  <img src={preview} alt="Preview" className="image-preview" />
-                ) : (
-                  <div className="upload-placeholder">
-                    <Upload size={32} />
-                    <span>Click to upload image</span>
-                  </div>
-                )}
-              </label>
-            </div>
+            <label htmlFor="image">
+              Profile Image{" "}
+              {editMode ? "(Optional - keep current if empty)" : ""}
+            </label>
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            {previewUrl && (
+              <div className="image-preview">
+                <img src={previewUrl} alt="Preview" />
+              </div>
+            )}
           </div>
 
-          {error && <div className="error-message">{error}</div>}
-
-          <button type="submit" className="submit-btn">
-            {editMode ? "Update User" : "Add User"}
-          </button>
+          <div className="modal-actions">
+            <button type="button" className="cancel-btn" onClick={handleClose}>
+              Cancel
+            </button>
+            <button type="submit" className="submit-btn">
+              {editMode ? "Update User" : "Add User"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
