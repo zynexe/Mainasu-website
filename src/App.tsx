@@ -11,6 +11,7 @@ import Waifu from "./pages/Waifu";
 import ChangeUser from "./components/ChangeUser";
 import Loader from "./components/Loader";
 import "./App.css";
+import Rating from "./pages/Rating";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ function App() {
           path="/tierlist"
           element={<div>Tierlist Page (Coming Soon)</div>}
         />
-        <Route path="/rating" element={<div>Rating Page (Coming Soon)</div>} />
+        <Route path="/Rating" element={<Rating />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
