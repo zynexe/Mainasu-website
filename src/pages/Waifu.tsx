@@ -54,15 +54,15 @@ const Waifu = () => {
       const { data: usersData, error: usersError } = await supabase
         .from("users")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
 
       if (usersError) throw usersError;
 
-      // Fetch all waifus
+      // Fetch all waifus - oldest to newest
       const { data: waifusData, error: waifusError } = await supabase
         .from("waifus")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
 
       if (waifusError) throw waifusError;
 

@@ -4,6 +4,7 @@ import MobileNavbar from "../components/MobileNavbar";
 import "../styles/About.css";
 import logo from "../assets/logo.png";
 import zynexe from "../assets/zynexe-profile-pic.jpg";
+import founder from "../assets/founder.webp"; // Add this import
 import reactIcon from "../assets/react.svg";
 import viteIcon from "../assets/vite-icon.webp";
 import supabaseIcon from "../assets/supabase-icon.webp";
@@ -37,11 +38,11 @@ const About = () => {
     try {
       setLoading(true);
 
-      // Fetch all users
+      // Fetch all users - oldest to newest
       const { data: usersData, error: usersError } = await supabase
         .from("users")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
 
       if (usersError) throw usersError;
 
@@ -49,7 +50,7 @@ const About = () => {
       const { data: waifusData, error: waifusError } = await supabase
         .from("waifus")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true }); // Changed to ascending for oldest first
 
       if (waifusError) throw waifusError;
 
@@ -159,6 +160,17 @@ const About = () => {
           <div className="about-box credit-box">
             <div className="credit-section">
               <h3 className="box-title">Credit</h3>
+
+              {/* Founder - Tendensius */}
+              <div className="credit-item">
+                <img src={founder} alt="Tendensius" className="credit-avatar" />
+                <div className="credit-info">
+                  <p className="credit-name">Tendensius</p>
+                  <p className="credit-role">Founder</p>
+                </div>
+              </div>
+
+              {/* Web Designer/Developer - Zynexe */}
               <div className="credit-item">
                 <img src={zynexe} alt="Zynexe" className="credit-avatar" />
                 <div className="credit-info">

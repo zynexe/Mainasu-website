@@ -103,12 +103,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
           </div>
 
           <div className="form-group">
-            <label>Role</label>
+            <label>Role/Jobs/AKA</label>
             <input
               type="text"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g., Gooner, Jobless, Weeb"
+              placeholder="e.g., Admin, Jobless, Gooner, etc.."
               required
             />
           </div>
