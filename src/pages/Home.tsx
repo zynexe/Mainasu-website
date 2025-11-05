@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import Navbar from "../components/Navbar";
@@ -12,36 +12,26 @@ import logo from "../assets/logo.png";
 const Home = () => {
   const navigate = useNavigate();
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [_isFirstVisit, setIsFirstVisit] = useState(false);
 
   useEffect(() => {
-    // Check if user has visited before
-    const hasVisited = localStorage.getItem("hasVisitedHome");
-
-    if (!hasVisited) {
-      // First visit - enable animation
-      setIsFirstVisit(true);
-      localStorage.setItem("hasVisitedHome", "true");
-
-      // Slice animation from left to right
-      cardsRef.current.forEach((card, index) => {
-        if (card) {
-          gsap.fromTo(
-            card,
-            {
-              clipPath: "inset(0 100% 0 0)",
-              opacity: 0,
-            },
-            {
-              clipPath: "inset(0 0% 0 0)",
-              opacity: 1,
-              duration: 0.4,
-              delay: index * 0.15,
-            }
-          );
-        }
-      });
-    }
+    // Always play slicing animation on load
+    cardsRef.current.forEach((card, index) => {
+      if (card) {
+        gsap.fromTo(
+          card,
+          {
+            clipPath: "inset(0 100% 0 0)",
+            opacity: 0,
+          },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            opacity: 1,
+            duration: 0.4,
+            delay: index * 0.15,
+          }
+        );
+      }
+    });
   }, []);
 
   const handleCardHover = (index: number, isHovering: boolean) => {

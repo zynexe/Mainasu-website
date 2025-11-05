@@ -8,7 +8,7 @@ interface User {
   id: string;
   name: string;
   role: string;
-  avatar: string;
+  avatar_url: string;
 }
 
 const Navbar = () => {
@@ -22,14 +22,6 @@ const Navbar = () => {
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Default user
-      setCurrentUser({
-        id: "1",
-        name: "zynexe",
-        role: "Web Designer/Developer",
-        avatar: personIcon,
-      });
     }
   }, []);
 
@@ -42,8 +34,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
+    setCurrentUser(null);
     setIsDropdownOpen(false);
-    // You can add logout logic here
   };
 
   return (
@@ -91,7 +83,7 @@ const Navbar = () => {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <img
-              src={currentUser?.avatar || personIcon}
+              src={currentUser?.avatar_url || personIcon}
               alt="Profile"
               className="page-profile-icon"
             />
