@@ -1,19 +1,92 @@
-import Navbar from '../components/Navbar';
-import '../styles/About.css';
-import logo from '../assets/logo.png';
-import zynexe from '../assets/zynexe-profile-pic.jpg';
-import reactIcon from '../assets/react.svg';
-import viteIcon from '../assets/vite-icon.webp';
-import supabaseIcon from '../assets/supabase-icon.webp';
-import cssIcon from '../assets/css3-icon.webp';
-import vercelIcon from '../assets/vercel-icon.webp';
-import caffeineIcon from '../assets/caffeine-icon.webp';
+import { useState, useEffect } from "react";
+import Navbar from "../components/Navbar";
+import "../styles/About.css";
+import logo from "../assets/logo.png";
+import zynexe from "../assets/zynexe-profile-pic.jpg";
+import reactIcon from "../assets/react.svg";
+import viteIcon from "../assets/vite-icon.webp";
+import supabaseIcon from "../assets/supabase-icon.webp";
+import cssIcon from "../assets/css3-icon.webp";
+import vercelIcon from "../assets/vercel-icon.webp";
+import caffeineIcon from "../assets/caffeine-icon.webp";
+import { supabase } from "../lib/supabase";
+import type { User } from "../lib/supabase";
+
+interface WaifuItem {
+  id: string;
+  name: string;
+  role: string;
+  image_url: string;
+  user_id: string;
+}
+
+interface MemberWithWaifus extends User {
+  waifus: WaifuItem[];
+}
 
 const About = () => {
+  const [members, setMembers] = useState<MemberWithWaifus[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMembersAndWaifus();
+  }, []);
+
+  const fetchMembersAndWaifus = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch all users
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (usersError) throw usersError;
+
+      // Fetch all waifus
+      const { data: waifusData, error: waifusError } = await supabase
+        .from("waifus")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (waifusError) throw waifusError;
+
+      // Combine users with their waifus
+      const membersWithWaifus: MemberWithWaifus[] = (usersData || []).map(
+        (user) => ({
+          ...user,
+          waifus: (waifusData || []).filter(
+            (waifu) => waifu.user_id === user.id
+          ),
+        })
+      );
+
+      setMembers(membersWithWaifus);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="about-page">
+        <Navbar />
+        <main className="about-content">
+          <div style={{ textAlign: "center", padding: "4rem", color: "#fff" }}>
+            <p>Loading members...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="about-page">
       <Navbar />
-      
+
       <main className="about-content">
         <div className="about-grid">
           {/* Mainasu Info Box */}
@@ -26,35 +99,58 @@ const About = () => {
               </div>
             </div>
             <p className="mainasu-description">
-              The name "Mainasu" came from the word "main" and "asu" which means 
-              "come play shitheads". The name is chosen so that friends that are close 
-              enough to get called "asu" could play together, we belive in hating our own 
-              friends for a long lasting friendship and the study show that!
+              The name "Mainasu" came from the word "main" and "asu" which means
+              "come play shitheads". The name is chosen so that friends that are
+              close enough to get called "asu" could play together, we belive in
+              hating our own friends for a long lasting friendship and the study
+              show that!
             </p>
           </div>
 
           {/* Members Box */}
           <div className="about-box members-box">
             <h3 className="box-title">Members</h3>
-            <div className="members-grid">
-              <div className="member-item featured">
-                <img src={zynexe} alt="Zynexe" className="member-avatar" />
-                <div className="member-info">
-                  <p className="member-name">Zynexe</p>
-                  <p className="member-role">Web Designer/Developer</p>
-                </div>
-              </div>
-              
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="member-item">
-                  <img src={logo} alt="Other" className="member-avatar default" />
-                  <div className="member-info">
-                    <p className="member-name">Other</p>
-                    <p className="member-role">Web Designer/Developer</p>
+            {members.length === 0 ? (
+              <p
+                style={{ color: "#888", textAlign: "center", padding: "2rem" }}
+              >
+                No members yet. Add members in Change User page.
+              </p>
+            ) : (
+              <div className="members-grid">
+                {members.map((member) => (
+                  <div key={member.id} className="about-member-item">
+                    <img
+                      src={member.avatar_url || logo}
+                      alt={member.name}
+                      className="about-member-avatar"
+                    />
+                    <div className="about-member-info">
+                      <div className="about-member-name">{member.name}</div>
+                      <div className="about-member-role">{member.role}</div>
+                    </div>
+
+                    {/* Waifu Circles */}
+                    {member.waifus.length > 0 && (
+                      <div className="waifu-circles">
+                        {member.waifus.slice(0, 4).map((waifu, index) => (
+                          <div
+                            key={waifu.id}
+                            className="waifu-circle"
+                            style={{
+                              backgroundImage: `url(${waifu.image_url})`,
+                              zIndex: 4 - index,
+                              right: `${index * 20}px`,
+                            }}
+                            title={waifu.name}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Credit & Tech Stack Box */}

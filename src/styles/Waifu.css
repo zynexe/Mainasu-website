@@ -455,3 +455,47 @@
     justify-content: center;
   }
 }
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.delete-btn-modal {
+  flex: 1;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.delete-btn-modal:hover {
+  background: #b91c1c;
+}
+
+.submit-btn {
+  flex: 2;
+  /* ...existing submit-btn styles... */
+}
+
+.uploading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: #fff;
+  font-size: 1.2rem;
+}

@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { X, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Upload, Trash2 } from "lucide-react";
 import "../styles/Waifu.css";
 
 interface AddWaifuModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { name: string; role: string; image: File }) => void;
+  onSubmit: (data: { name: string; role: string; image: File | null }) => void;
+  onDelete?: () => void;
   editMode?: boolean;
   initialData?: { name: string; role: string; image?: string };
 }
@@ -14,6 +15,7 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  onDelete,
   editMode = false,
   initialData,
 }) => {
@@ -23,12 +25,27 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
   const [preview, setPreview] = useState<string>(initialData?.image || "");
   const [error, setError] = useState("");
 
+  // Update form when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setRole(initialData.role);
+      setPreview(initialData.image || "");
+    } else {
+      setName("");
+      setRole("");
+      setPreview("");
+    }
+    setImageFile(null);
+    setError("");
+  }, [initialData, isOpen]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (500KB = 512000 bytes)
-      if (file.size > 512000) {
-        setError("File size must be less than 500KB");
+      // Check file size (1MB = 1000000 bytes)
+      if (file.size > 1000000) {
+        setError("File size must be less than 1MB");
         return;
       }
 
@@ -58,24 +75,42 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
       return;
     }
 
-    if (!imageFile && !editMode) {
+    if (!imageFile && !editMode && !preview) {
       setError("Please upload an image");
       return;
     }
 
-    if (imageFile) {
-      onSubmit({ name, role, image: imageFile });
-    }
+    onSubmit({ name, role, image: imageFile });
+    handleClose();
+  };
 
+  const handleDelete = () => {
+    if (onDelete) {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this waifu? This action cannot be undone."
+      );
+      if (confirmed) {
+        onDelete();
+        handleClose();
+      }
+    }
+  };
+
+  const handleClose = () => {
+    setName("");
+    setRole("");
+    setImageFile(null);
+    setPreview("");
+    setError("");
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
+        <button className="modal-close" onClick={handleClose}>
           <X size={24} />
         </button>
 
@@ -89,16 +124,18 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter waifu name"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Role</label>
+            <label>From</label>
             <input
               type="text"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g., oshi, oshipa"
+              placeholder="e.g., Aespa, ZZZ, Blue Archive"
+              required
             />
           </div>
 
@@ -109,9 +146,9 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
                 type="file"
                 accept="image/png,image/jpeg,image/jpg"
                 onChange={handleImageChange}
-                id="image-input"
+                id="waifu-image-input"
               />
-              <label htmlFor="image-input" className="upload-label">
+              <label htmlFor="waifu-image-input" className="upload-label">
                 {preview ? (
                   <img src={preview} alt="Preview" className="image-preview" />
                 ) : (
@@ -126,9 +163,21 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="submit-btn">
-            {editMode ? "Update Mybini" : "Add Mybini"}
-          </button>
+          <div className="modal-actions">
+            {editMode && onDelete && (
+              <button
+                type="button"
+                className="delete-btn-modal"
+                onClick={handleDelete}
+              >
+                <Trash2 size={18} />
+                Delete
+              </button>
+            )}
+            <button type="submit" className="submit-btn">
+              {editMode ? "Update Mybini" : "Add Mybini"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

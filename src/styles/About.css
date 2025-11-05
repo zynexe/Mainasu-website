@@ -2,7 +2,7 @@
   min-height: 100vh;
   background-color: #121212;
   color: white;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 .about-content {
@@ -90,48 +90,88 @@
 
 .members-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
-.member-item {
+/* ...existing code... */
+
+.about-member-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  padding-right: 100px;
+  min-height: 60px;
 }
 
-.member-avatar {
+.about-member-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #2a2a2a;
 }
 
-.member-avatar.default {
+.about-member-avatar.default {
   background-color: #2a2a2a;
   padding: 8px;
 }
 
-.member-info {
+.about-member-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.member-name {
+.about-member-name {
   font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 0.15rem;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.member-role {
+.about-member-role {
   font-size: 0.8rem;
   color: #888;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ...existing code... */
+
+/* Waifu Circles (Overlapping Design) */
+.waifu-circles {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.waifu-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #1e1e1e;
+  position: absolute;
+  transition: transform 0.2s ease, z-index 0s;
+  cursor: pointer;
+}
+
+.waifu-circle:hover {
+  transform: scale(1.15) translateY(-2px);
+  z-index: 10 !important;
+  border-color: #3b82f6;
 }
 
 /* Credit Section */
@@ -192,7 +232,7 @@
   }
 
   .members-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .techstack-grid {
@@ -222,7 +262,7 @@
   }
 
   .members-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 }
 
@@ -235,11 +275,33 @@
     padding: 1.5rem;
   }
 
-  .members-grid {
-    grid-template-columns: 1fr;
+  .member-item {
+    padding-right: 90px;
+  }
+
+  .waifu-circle {
+    width: 36px;
+    height: 36px;
   }
 
   .techstack-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .member-item {
+    padding-right: 80px;
+  }
+
+  .waifu-circle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .waifu-circles .waifu-circle:not(:first-child) {
+    right: auto;
+    position: relative;
+    margin-left: -10px;
   }
 }

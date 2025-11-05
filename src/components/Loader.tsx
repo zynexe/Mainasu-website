@@ -82,13 +82,12 @@ const Loader = ({ onComplete }: LoaderProps) => {
   useEffect(() => {
     const tl = gsap.timeline({
       onComplete: () => {
-        setTimeout(() => {
-          onComplete();
-        }, 500);
+        // Call onComplete only after the entire animation is done
+        onComplete();
       },
     });
 
-    // Animate percentage from 0 to 100
+    // Animate percentage from 0 to 100 (2 seconds)
     tl.to(
       {},
       {
@@ -112,7 +111,7 @@ const Loader = ({ onComplete }: LoaderProps) => {
       }
     );
 
-    // Fade out percentage and show logo
+    // Fade out percentage and show logo (0.4s)
     tl.to(percentageRef.current, {
       opacity: 0,
       scale: 0.8,
@@ -126,20 +125,22 @@ const Loader = ({ onComplete }: LoaderProps) => {
         opacity: 1,
         scale: 1,
         duration: 0.6,
-        ease: "back.out(1.7)",
+        ease: "back.out(1)",
       },
       "-=0.2"
     );
 
-    // Hold logo for a moment
-    tl.to({}, { duration: 0.5 });
+    // Hold logo for a moment (0.8s - increased from 0.5s)
+    tl.to({}, { duration: 0.4 });
 
-    // Fade out entire loader
+    // Fade out entire loader (0.6s - increased from 0.5s)
     tl.to(loaderRef.current, {
       opacity: 0,
-      duration: 0.5,
+      duration: 0.6,
       ease: "power2.inOut",
     });
+
+    // Total timeline: 2 + 0.4 + 0.6 + 0.8 + 0.6 = 4.4 seconds
 
     return () => {
       tl.kill();

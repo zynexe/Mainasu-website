@@ -4,7 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Waifu from "./pages/Waifu";
@@ -15,16 +15,12 @@ import "./App.css";
 function App() {
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleLoaderComplete = () => {
+    setLoading(false);
+  };
 
   if (loading) {
-    return <Loader />;
+    return <Loader onComplete={handleLoaderComplete} />;
   }
 
   return (
