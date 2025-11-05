@@ -167,7 +167,7 @@ const About = () => {
                 <img src={founder} alt="Tendensius" className="credit-avatar" />
                 <div className="credit-info">
                   <p className="credit-name">Tendensius</p>
-                  <p className="credit-role">Founder</p>
+                  <p className="credit-role">Founder/Content Creator</p>
                 </div>
               </div>
 
@@ -176,7 +176,7 @@ const About = () => {
                 <img src={personIcon} alt="R.R." className="credit-avatar" />
                 <div className="credit-info">
                   <p className="credit-name">R.R.</p>
-                  <p className="credit-role">Founder</p>
+                  <p className="credit-role">Founder/Game Developer</p>
                 </div>
               </div>
 
