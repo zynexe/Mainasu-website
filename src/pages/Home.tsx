@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import Navbar from "../components/Navbar";
+import MobileNavbar from "../components/MobileNavbar";
 import "../styles/Home.css";
 import myBini from "../assets/myBini.webp";
 import song from "../assets/song.png";
@@ -57,6 +58,7 @@ const Home = () => {
   return (
     <>
       <Navbar />
+      <MobileNavbar />
       <div className="home">
         {/* Main Content */}
         <main className="main-content">

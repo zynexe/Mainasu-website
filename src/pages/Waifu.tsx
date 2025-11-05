@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import MobileNavbar from "../components/MobileNavbar";
 import WaifuSearchbar from "../components/Searchbar";
 import AddWaifuModal from "../components/WaifuModal";
 import { supabase } from "../lib/supabase";
@@ -340,6 +341,7 @@ const Waifu = () => {
   return (
     <>
       <Navbar />
+      <MobileNavbar />
       <div className="waifu-page">
         <header className="waifu-header">
           <div className="header-left">

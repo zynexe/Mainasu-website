@@ -187,14 +187,6 @@
 
 @media (max-width: 768px) {
   .page-navbar {
-    padding: 1rem 1.5rem;
-  }
-
-  .page-navbar-center {
     display: none;
-  }
-
-  .page-logo-text {
-    font-size: 1.1rem;
   }
 }

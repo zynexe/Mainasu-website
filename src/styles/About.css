@@ -269,6 +269,7 @@
 @media (max-width: 768px) {
   .about-content {
     padding: 1.5rem;
+    margin-top: 6rem;
   }
 
   .about-box {

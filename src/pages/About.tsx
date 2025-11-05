@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import MobileNavbar from "../components/MobileNavbar";
 import "../styles/About.css";
 import logo from "../assets/logo.png";
 import zynexe from "../assets/zynexe-profile-pic.jpg";
@@ -86,6 +87,7 @@ const About = () => {
   return (
     <div className="about-page">
       <Navbar />
+      <MobileNavbar />
 
       <main className="about-content">
         <div className="about-grid">

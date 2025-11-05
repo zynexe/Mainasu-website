@@ -309,6 +309,10 @@
     gap: 0.5rem;
     text-align: center;
   }
+
+  .home {
+    padding-top: 70px; /* Account for mobile navbar height */
+  }
 }
 
 /* Default state - no animation */

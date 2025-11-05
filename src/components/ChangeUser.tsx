@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import MobileNavbar from "./MobileNavbar";
 import WaifuSearchbar from "./Searchbar";
 import AddUserModal from "./AddUserModal";
 import { supabase } from "../lib/supabase";
@@ -222,6 +223,7 @@ const ChangeUser = () => {
   return (
     <>
       <Navbar />
+      <MobileNavbar />
       <div className="change-user-page">
         <header className="change-user-header">
           <div className="header-left">
