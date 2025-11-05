@@ -143,7 +143,7 @@ const MobileNavbar = () => {
                 {currentUser?.role || "Select a user"}
               </p>
             </div>
-            <span className="mobile-profile-change">change</span>
+            <span className="mobile-profile-change">Change</span>
           </button>
 
           {/* Navigation Links */}

@@ -147,7 +147,7 @@
 
 .mobile-profile-change {
   font-size: 0.9rem;
-  color: #888;
+  color: #ffffff;
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -164,7 +164,7 @@
 .mobile-menu-link {
   background: none;
   border: none;
-  color: #fff;
+  color: #6b6b6b;
   font-size: 1.25rem;
   font-weight: 500;
   padding: 1.25rem 2rem;
@@ -184,9 +184,9 @@
 }
 
 .mobile-menu-link.active {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-left-color: #d1d5db;
-  color: #d1d5db;
+  border-left-color: #ffffff;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .mobile-link-text {
@@ -195,9 +195,9 @@
 
 /* Close Button */
 .mobile-menu-close {
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  background: none;
   border: none;
-  color: #fff;
+  color: #be1010;
   font-size: 1rem;
   font-weight: 600;
   padding: 1.25rem 2rem;
