@@ -360,7 +360,7 @@ const Rating = () => {
                       <td className="music-artist-cell">{music.artist}</td>
                       {/* Move Uploaded By Column here - after Artist */}
                       <td className="music-uploaded-by-cell">
-                        <span className="uploaded-by-label">uploaded by</span>{" "}
+                        <span className="uploaded-by-label"></span>{" "}
                         <span className="uploaded-by-name">
                           {music.uploaderName}
                         </span>
