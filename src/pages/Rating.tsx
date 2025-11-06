@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import MobileNavbar from "../components/MobileNavbar";
 import AddMusicModal from "../components/AddMusicModal";
 import VoteModal from "../components/VoteModal";
+import EditMusicModal from "../components/EditMusicModal"; // Add this import
 import "../styles/Rating.css";
 import personIcon from "../assets/person.png";
 
@@ -25,6 +26,7 @@ interface MusicRating {
   audioUrl: string | null;
   embedUrl: string | null;
   duration: number;
+  uploadedBy: string; // Add this
 }
 
 const Rating = () => {
@@ -37,6 +39,7 @@ const Rating = () => {
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const [isAddMusicModalOpen, setIsAddMusicModalOpen] = useState(false);
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Add this
   const [selectedMusic, setSelectedMusic] = useState<MusicRating | null>(null);
   const [currentUserVote, setCurrentUserVote] = useState<number | undefined>(
     undefined
@@ -106,11 +109,12 @@ const Rating = () => {
           title: music.title,
           artist: music.artist,
           avgRating,
-          votes: votes.slice(0, 4), // Show max 4 avatars
+          votes: votes.slice(0, 4),
           sourceType: music.source_type,
           audioUrl: music.audio_url,
           embedUrl: music.embed_url,
           duration: music.duration || 0,
+          uploadedBy: music.uploaded_by, // Add this
         };
       });
 
@@ -150,7 +154,6 @@ const Rating = () => {
       audio.pause();
       setPlayingId(null);
     } else {
-      // Pause all other audio
       Object.keys(audioRefs.current).forEach((id) => {
         if (id !== musicId && audioRefs.current[id]) {
           audioRefs.current[id].pause();
@@ -197,7 +200,6 @@ const Rating = () => {
     const music = musicList.find((m) => m.id === musicId);
     if (!music) return;
 
-    // Get current user's vote
     const currentUser = localStorage.getItem("currentUser");
     if (currentUser) {
       const user = JSON.parse(currentUser);
@@ -213,6 +215,28 @@ const Rating = () => {
 
     setSelectedMusic(music);
     setIsVoteModalOpen(true);
+  };
+
+  // Add this function
+  const handleOpenEditModal = (musicId: string) => {
+    const music = musicList.find((m) => m.id === musicId);
+    if (!music) return;
+
+    // Check if current user is the uploader
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      alert("Please select a user first");
+      return;
+    }
+    const user = JSON.parse(currentUser);
+
+    if (user.id !== music.uploadedBy) {
+      alert("You can only edit music that you uploaded");
+      return;
+    }
+
+    setSelectedMusic(music);
+    setIsEditModalOpen(true);
   };
 
   if (loading) {
@@ -290,13 +314,14 @@ const Rating = () => {
                 <th>Avg Rating</th>
                 <th>Votes</th>
                 <th>Play</th>
+                <th>Edit</th> {/* Add this column */}
               </tr>
             </thead>
             <tbody>
               {currentMusic.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6} // Changed from 5 to 6
                     style={{
                       textAlign: "center",
                       padding: "3rem",
@@ -309,184 +334,218 @@ const Rating = () => {
                   </td>
                 </tr>
               ) : (
-                currentMusic.map((music) => (
-                  <tr key={music.id}>
-                    <td className="music-title-cell">{music.title}</td>
-                    <td className="music-artist-cell">{music.artist}</td>
-                    <td className="music-rating-cell">
-                      {music.avgRating > 0
-                        ? `${music.avgRating}/10`
-                        : "No votes"}
-                    </td>
-                    <td className="music-votes-cell">
-                      <button
-                        className="votes-button"
-                        onClick={() => handleOpenVotesModal(music.id)}
-                      >
-                        {music.votes.length > 0 ? (
-                          <div className="votes-avatars">
-                            {music.votes.map((vote, index) => (
-                              <div
-                                key={vote.id}
-                                className="vote-avatar"
-                                style={{
-                                  zIndex: music.votes.length - index,
-                                  left: `${index * 20}px`,
-                                }}
-                                title={vote.userName}
-                              >
-                                <img
-                                  src={vote.userAvatar}
-                                  alt={vote.userName}
-                                />
-                              </div>
-                            ))}
+                currentMusic.map((music) => {
+                  // Check if current user owns this music
+                  const currentUser = localStorage.getItem("currentUser");
+                  const canEdit = currentUser
+                    ? JSON.parse(currentUser).id === music.uploadedBy
+                    : false;
+
+                  return (
+                    <tr key={music.id}>
+                      <td className="music-title-cell">{music.title}</td>
+                      <td className="music-artist-cell">{music.artist}</td>
+                      <td className="music-rating-cell">
+                        {music.avgRating > 0
+                          ? `${music.avgRating}/10`
+                          : "No votes"}
+                      </td>
+                      <td className="music-votes-cell">
+                        <button
+                          className="votes-button"
+                          onClick={() => handleOpenVotesModal(music.id)}
+                        >
+                          {music.votes.length > 0 ? (
+                            <div className="votes-avatars">
+                              {music.votes.map((vote, index) => (
+                                <div
+                                  key={vote.id}
+                                  className="vote-avatar"
+                                  style={{
+                                    zIndex: music.votes.length - index,
+                                    left: `${index * 20}px`,
+                                  }}
+                                  title={vote.userName}
+                                >
+                                  <img
+                                    src={vote.userAvatar}
+                                    alt={vote.userName}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span
+                              style={{ color: "#666", fontSize: "0.85rem" }}
+                            >
+                              No votes
+                            </span>
+                          )}
+                          <svg
+                            className="votes-arrow"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                          >
+                            <path
+                              d="M7.5 5L12.5 10L7.5 15"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                      <td className="music-player-cell">
+                        {/* File Upload - Audio Player */}
+                        {music.sourceType === "file" && music.audioUrl && (
+                          <div className="mini-player">
+                            <button
+                              className="play-pause-btn"
+                              onClick={() => handlePlayPause(music.id)}
+                            >
+                              {playingId === music.id ? (
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="currentColor"
+                                >
+                                  <rect
+                                    x="3"
+                                    y="2"
+                                    width="3"
+                                    height="12"
+                                    rx="1"
+                                  />
+                                  <rect
+                                    x="10"
+                                    y="2"
+                                    width="3"
+                                    height="12"
+                                    rx="1"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 16 16"
+                                  fill="currentColor"
+                                >
+                                  <path d="M4 2l10 6-10 6V2z" />
+                                </svg>
+                              )}
+                            </button>
+                            <input
+                              type="range"
+                              className="player-slider"
+                              min="0"
+                              max={audioRefs.current[music.id]?.duration || 100}
+                              value={currentTime[music.id] || 0}
+                              onChange={(e) =>
+                                handleSeek(music.id, parseFloat(e.target.value))
+                              }
+                            />
+                            <span className="player-time">
+                              {formatTime(currentTime[music.id] || 0)}/
+                              {audioRefs.current[music.id]
+                                ? formatTime(
+                                    audioRefs.current[music.id].duration || 0
+                                  )
+                                : formatTime(music.duration)}
+                            </span>
+                            <audio
+                              ref={(el) => {
+                                if (el) audioRefs.current[music.id] = el;
+                              }}
+                              src={music.audioUrl}
+                              onTimeUpdate={() => handleTimeUpdate(music.id)}
+                              onEnded={() => setPlayingId(null)}
+                            />
                           </div>
+                        )}
+
+                        {/* YouTube Embed */}
+                        {music.sourceType === "youtube" && music.embedUrl && (
+                          <div className="embed-player">
+                            <iframe
+                              width="380"
+                              height="200"
+                              src={`${music.embedUrl}?controls=1`}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              style={{ borderRadius: "8px" }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Spotify Embed */}
+                        {music.sourceType === "spotify" && music.embedUrl && (
+                          <div className="embed-player">
+                            <iframe
+                              width="380"
+                              height="90"
+                              src={`${music.embedUrl}?theme=0`}
+                              frameBorder="0"
+                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                              loading="lazy"
+                              style={{ borderRadius: "8px" }}
+                            />
+                          </div>
+                        )}
+
+                        {/* SoundCloud or other links */}
+                        {music.sourceType === "soundcloud" &&
+                          music.embedUrl && (
+                            <a
+                              href={music.embedUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="external-link-btn"
+                              style={{
+                                color: "#fff",
+                                background: "#2a2a2a",
+                                padding: "0.5rem 1rem",
+                                borderRadius: "8px",
+                                textDecoration: "none",
+                                fontSize: "0.85rem",
+                                display: "inline-block",
+                              }}
+                            >
+                              Play on SoundCloud ↗
+                            </a>
+                          )}
+                      </td>
+                      {/* Add Edit Column */}
+                      <td className="music-edit-cell">
+                        {canEdit ? (
+                          <button
+                            className="edit-music-btn"
+                            onClick={() => handleOpenEditModal(music.id)}
+                          >
+                            <svg
+                              viewBox="0 0 20 20"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                            </svg>
+                            Edit
+                          </button>
                         ) : (
                           <span style={{ color: "#666", fontSize: "0.85rem" }}>
-                            No votes
+                            —
                           </span>
                         )}
-                        <svg
-                          className="votes-arrow"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <path
-                            d="M7.5 5L12.5 10L7.5 15"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </button>
-                    </td>
-                    <td className="music-player-cell">
-                      {/* File Upload - Audio Player */}
-                      {music.sourceType === "file" && music.audioUrl && (
-                        <div className="mini-player">
-                          <button
-                            className="play-pause-btn"
-                            onClick={() => handlePlayPause(music.id)}
-                          >
-                            {playingId === music.id ? (
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                fill="currentColor"
-                              >
-                                <rect
-                                  x="3"
-                                  y="2"
-                                  width="3"
-                                  height="12"
-                                  rx="1"
-                                />
-                                <rect
-                                  x="10"
-                                  y="2"
-                                  width="3"
-                                  height="12"
-                                  rx="1"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                fill="currentColor"
-                              >
-                                <path d="M4 2l10 6-10 6V2z" />
-                              </svg>
-                            )}
-                          </button>
-                          <input
-                            type="range"
-                            className="player-slider"
-                            min="0"
-                            max={audioRefs.current[music.id]?.duration || 100}
-                            value={currentTime[music.id] || 0}
-                            onChange={(e) =>
-                              handleSeek(music.id, parseFloat(e.target.value))
-                            }
-                          />
-                          <span className="player-time">
-                            {formatTime(currentTime[music.id] || 0)}/
-                            {audioRefs.current[music.id]
-                              ? formatTime(
-                                  audioRefs.current[music.id].duration || 0
-                                )
-                              : formatTime(music.duration)}
-                          </span>
-                          <audio
-                            ref={(el) => {
-                              if (el) audioRefs.current[music.id] = el;
-                            }}
-                            src={music.audioUrl}
-                            onTimeUpdate={() => handleTimeUpdate(music.id)}
-                            onEnded={() => setPlayingId(null)}
-                          />
-                        </div>
-                      )}
-
-                      {/* YouTube Embed */}
-                      {music.sourceType === "youtube" && music.embedUrl && (
-                        <div className="embed-player">
-                          <iframe
-                            width="380"
-                            height="200"
-                            src={`${music.embedUrl}?controls=1`}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            style={{ borderRadius: "8px" }}
-                          />
-                        </div>
-                      )}
-
-                      {/* Spotify Embed */}
-                      {music.sourceType === "spotify" && music.embedUrl && (
-                        <div className="embed-player">
-                          <iframe
-                            width="380"
-                            height="90"
-                            src={`${music.embedUrl}?theme=0`}
-                            frameBorder="0"
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"
-                            style={{ borderRadius: "8px" }}
-                          />
-                        </div>
-                      )}
-
-                      {/* SoundCloud or other links */}
-                      {music.sourceType === "soundcloud" && music.embedUrl && (
-                        <a
-                          href={music.embedUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="external-link-btn"
-                          style={{
-                            color: "#fff",
-                            background: "#2a2a2a",
-                            padding: "0.5rem 1rem",
-                            borderRadius: "8px",
-                            textDecoration: "none",
-                            fontSize: "0.85rem",
-                            display: "inline-block",
-                          }}
-                        >
-                          Play on SoundCloud ↗
-                        </a>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -555,6 +614,24 @@ const Rating = () => {
         currentUserVote={currentUserVote}
         onVoteSuccess={() => {
           fetchMusic();
+        }}
+      />
+
+      {/* Edit Music Modal */}
+      <EditMusicModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedMusic(null);
+        }}
+        onSuccess={() => {
+          fetchMusic();
+        }}
+        musicId={selectedMusic?.id || ""}
+        initialData={{
+          title: selectedMusic?.title || "",
+          artist: selectedMusic?.artist || "",
+          sourceType: selectedMusic?.sourceType || "",
         }}
       />
     </>

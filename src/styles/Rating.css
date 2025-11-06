@@ -911,3 +911,159 @@
   background: #333;
   transform: translateY(-1px);
 }
+
+/* Edit Music Modal Styles */
+.edit-music-modal-content {
+  max-width: 550px;
+}
+
+.source-type-display {
+  background: #2a2a2a;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.form-hint {
+  margin: 0.5rem 0 0 0;
+  color: #888;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Delete Confirmation Styles */
+.delete-confirmation {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.delete-warning-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.delete-confirmation-title {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.delete-music-info {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.delete-music-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.delete-music-artist {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.delete-warning-text {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Delete Button */
+.delete-btn {
+  background: transparent;
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: #ff5252;
+  color: #ff5252;
+}
+
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirm-delete-btn {
+  background: #ff6b6b;
+  border: none;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.confirm-delete-btn:hover:not(:disabled) {
+  background: #ff5252;
+  transform: translateY(-1px);
+}
+
+.confirm-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Edit Button in Table */
+.edit-music-btn {
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-music-btn:hover {
+  background: #333;
+  border-color: #555;
+  transform: translateY(-1px);
+}
+
+.edit-music-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Music Edit Cell */
+.music-edit-cell {
+  padding: 1rem 1.5rem;
+}
