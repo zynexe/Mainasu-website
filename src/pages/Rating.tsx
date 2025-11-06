@@ -439,7 +439,7 @@ const Rating = () => {
                         <div className="embed-player">
                           <iframe
                             width="380"
-                            height="120"
+                            height="200"
                             src={`${music.embedUrl}?controls=1`}
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
