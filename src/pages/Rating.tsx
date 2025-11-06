@@ -26,7 +26,8 @@ interface MusicRating {
   audioUrl: string | null;
   embedUrl: string | null;
   duration: number;
-  uploadedBy: string; // Add this
+  uploadedBy: string;
+  uploaderName: string; // Add this line
 }
 
 const Rating = () => {
@@ -52,10 +53,18 @@ const Rating = () => {
     try {
       setLoading(true);
 
-      // Fetch music
+      // Fetch music with uploader info
       const { data: musicData, error: musicError } = await supabase
         .from("music")
-        .select("*")
+        .select(
+          `
+          *,
+          uploader:uploaded_by (
+            id,
+            name
+          )
+        `
+        )
         .order("created_at", { ascending: false });
 
       if (musicError) throw musicError;
@@ -93,30 +102,33 @@ const Rating = () => {
       });
 
       // Combine music with votes
-      const musicWithRatings: MusicRating[] = (musicData || []).map((music) => {
-        const votes = votesByMusic[music.id] || [];
-        const avgRating =
-          votes.length > 0
-            ? parseFloat(
-                (
-                  votes.reduce((sum, v) => sum + v.rating, 0) / votes.length
-                ).toFixed(1)
-              )
-            : 0;
+      const musicWithRatings: MusicRating[] = (musicData || []).map(
+        (music: any) => {
+          const votes = votesByMusic[music.id] || [];
+          const avgRating =
+            votes.length > 0
+              ? parseFloat(
+                  (
+                    votes.reduce((sum, v) => sum + v.rating, 0) / votes.length
+                  ).toFixed(1)
+                )
+              : 0;
 
-        return {
-          id: music.id,
-          title: music.title,
-          artist: music.artist,
-          avgRating,
-          votes: votes.slice(0, 4),
-          sourceType: music.source_type,
-          audioUrl: music.audio_url,
-          embedUrl: music.embed_url,
-          duration: music.duration || 0,
-          uploadedBy: music.uploaded_by, // Add this
-        };
-      });
+          return {
+            id: music.id,
+            title: music.title,
+            artist: music.artist,
+            avgRating,
+            votes: votes.slice(0, 4),
+            sourceType: music.source_type,
+            audioUrl: music.audio_url,
+            embedUrl: music.embed_url,
+            duration: music.duration || 0,
+            uploadedBy: music.uploaded_by,
+            uploaderName: music.uploader?.name || "Unknown", // Add this line
+          };
+        }
+      );
 
       setMusicList(musicWithRatings);
     } catch (error) {
@@ -311,6 +323,7 @@ const Rating = () => {
               <tr>
                 <th>Music</th>
                 <th>Artist</th>
+                <th>Uploaded By</th>
                 <th>Avg Rating</th>
                 <th>Votes</th>
                 <th>Play</th>
@@ -321,7 +334,7 @@ const Rating = () => {
               {currentMusic.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6} // Changed from 5 to 6
+                    colSpan={7} // Changed from 6 to 7
                     style={{
                       textAlign: "center",
                       padding: "3rem",
@@ -345,6 +358,13 @@ const Rating = () => {
                     <tr key={music.id}>
                       <td className="music-title-cell">{music.title}</td>
                       <td className="music-artist-cell">{music.artist}</td>
+                      {/* Move Uploaded By Column here - after Artist */}
+                      <td className="music-uploaded-by-cell">
+                        <span className="uploaded-by-label">uploaded by</span>{" "}
+                        <span className="uploaded-by-name">
+                          {music.uploaderName}
+                        </span>
+                      </td>
                       <td className="music-rating-cell">
                         {music.avgRating > 0
                           ? `${music.avgRating}/10`

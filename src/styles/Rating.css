@@ -1067,3 +1067,19 @@
 .music-edit-cell {
   padding: 1rem 1.5rem;
 }
+
+/* Uploaded By Column */
+.music-uploaded-by-cell {
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.uploaded-by-label {
+  color: #666;
+  font-weight: 400;
+}
+
+.uploaded-by-name {
+  color: #fff;
+  font-weight: 500;
+}
