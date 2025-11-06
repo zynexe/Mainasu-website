@@ -185,7 +185,7 @@ const About = () => {
                 <img src={zynexe} alt="Zynexe" className="credit-avatar" />
                 <div className="credit-info">
                   <p className="credit-name">Zynexe</p>
-                  <p className="credit-role">Web Designer/Developer</p>
+                  <p className="credit-role">I Made This Sh*t brick by brick</p>
                 </div>
               </div>
             </div>
