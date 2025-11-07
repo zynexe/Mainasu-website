@@ -154,10 +154,18 @@ const Rating = () => {
     .sort((a, b) => {
       if (sortOrder === null) return 0; // No sorting
 
+      // Confidence-based sorting: rewards songs with more votes
+      const voteThreshold = 3; // Adjust this to control vote importance
+
+      const confidenceA =
+        a.avgRating * (a.votes.length / (a.votes.length + voteThreshold));
+      const confidenceB =
+        b.avgRating * (b.votes.length / (b.votes.length + voteThreshold));
+
       if (sortOrder === "desc") {
-        return b.avgRating - a.avgRating; // Highest to lowest
+        return confidenceB - confidenceA; // Highest confidence first
       } else {
-        return a.avgRating - b.avgRating; // Lowest to highest
+        return confidenceA - confidenceB; // Lowest confidence first
       }
     });
 
@@ -297,7 +305,11 @@ const Rating = () => {
         <div className="rating-header">
           <div className="rating-header-left">
             <h1 className="rating-title">Rating Lagu</h1>
-            <p className="rating-subtitle">Vote and discover the best music</p>
+            <p className="rating-subtitle">
+              Let's see who got the worst music taste. Click AVG RATING to sort.
+              uses confidence scoring: <br />
+              Confidence = AvgRating × (Votes / (Votes + Threshold)).
+            </p>
           </div>
           <div className="rating-header-right">
             <div className="rating-search-container">
@@ -420,9 +432,21 @@ const Rating = () => {
                         </span>
                       </td>
                       <td className="music-rating-cell">
-                        {music.avgRating > 0
-                          ? `${music.avgRating}/10`
-                          : "No votes"}
+                        {music.avgRating > 0 ? (
+                          <span
+                            title={`${music.votes.length} vote${
+                              music.votes.length === 1 ? "" : "s"
+                            } • Confidence: ${(
+                              (music.votes.length / (music.votes.length + 5)) *
+                              100
+                            ).toFixed(0)}%`}
+                            style={{ cursor: "help" }}
+                          >
+                            {music.avgRating}/10
+                          </span>
+                        ) : (
+                          "No votes"
+                        )}
                       </td>
                       <td className="music-votes-cell">
                         <button
