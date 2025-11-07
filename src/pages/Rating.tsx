@@ -45,6 +45,7 @@ const Rating = () => {
   const [currentUserVote, setCurrentUserVote] = useState<number | undefined>(
     undefined
   );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
   const musicPerPage = 15;
 
@@ -144,11 +145,21 @@ const Rating = () => {
   }, []);
 
   // Filter music based on search
-  const filteredMusic = musicList.filter(
-    (music) =>
-      music.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      music.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMusic = musicList
+    .filter(
+      (music) =>
+        music.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        music.artist.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortOrder === null) return 0; // No sorting
+
+      if (sortOrder === "desc") {
+        return b.avgRating - a.avgRating; // Highest to lowest
+      } else {
+        return a.avgRating - b.avgRating; // Lowest to highest
+      }
+    });
 
   // Pagination
   const totalPages = Math.ceil(filteredMusic.length / musicPerPage);
@@ -251,6 +262,16 @@ const Rating = () => {
     setIsEditModalOpen(true);
   };
 
+  const toggleSort = () => {
+    if (sortOrder === null) {
+      setSortOrder("desc"); // First click: sort descending
+    } else if (sortOrder === "desc") {
+      setSortOrder("asc"); // Second click: sort ascending
+    } else {
+      setSortOrder(null); // Third click: remove sorting
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -324,7 +345,40 @@ const Rating = () => {
                 <th>Music</th>
                 <th>Artist</th>
                 <th>Uploaded By</th>
-                <th>Avg Rating</th>
+                <th>
+                  <button
+                    className="sort-header-btn"
+                    onClick={toggleSort}
+                    title={
+                      sortOrder === null
+                        ? "Click to sort by rating (highest first)"
+                        : sortOrder === "desc"
+                        ? "Click to sort by rating (lowest first)"
+                        : "Click to remove sorting"
+                    }
+                  >
+                    Avg Rating
+                    {sortOrder !== null && (
+                      <svg
+                        className={`sort-arrow ${
+                          sortOrder === "asc" ? "asc" : "desc"
+                        }`}
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                      >
+                        {sortOrder === "desc" ? (
+                          // Down arrow
+                          <path d="M8 12L3 7h10l-5 5z" />
+                        ) : (
+                          // Up arrow
+                          <path d="M8 4l5 5H3l5-5z" />
+                        )}
+                      </svg>
+                    )}
+                  </button>
+                </th>
                 <th>Votes</th>
                 <th>Play</th>
                 <th>Edit</th> {/* Add this column */}

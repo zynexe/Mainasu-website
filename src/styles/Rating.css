@@ -1083,3 +1083,61 @@
   color: #a0a0a0;
   font-weight: 500;
 }
+
+/* Sort Header Button */
+.sort-header-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.sort-header-btn:hover {
+  color: #fff;
+}
+
+.sort-arrow {
+  transition: all 0.3s;
+  color: #fff;
+}
+
+.sort-arrow.asc {
+  animation: arrowBounceUp 0.3s ease-out;
+}
+
+.sort-arrow.desc {
+  animation: arrowBounceDown 0.3s ease-out;
+}
+
+@keyframes arrowBounceDown {
+  0% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes arrowBounceUp {
+  0% {
+    transform: translateY(4px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
