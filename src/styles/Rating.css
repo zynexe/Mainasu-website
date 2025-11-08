@@ -1141,3 +1141,36 @@
     transform: translateY(0);
   }
 }
+
+/* Upload Limit Warning */
+.upload-limit-warning {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload-limit-warning svg {
+  width: 24px;
+  height: 24px;
+  color: #ff6b6b;
+  flex-shrink: 0;
+}
+
+.upload-limit-warning p {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Disable submit button when limit reached */
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #444;
+}

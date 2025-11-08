@@ -121,6 +121,22 @@ const AddMusicModal = ({ isOpen, onClose, onSubmit }: AddMusicModalProps) => {
       }
       const user = JSON.parse(currentUser);
 
+      // ✅ ADD THIS: Check upload limit
+      const { count: uploadCount, error: countError } = await supabase
+        .from("music")
+        .select("*", { count: "exact", head: true })
+        .eq("uploaded_by", user.id);
+
+      if (countError) throw countError;
+
+      if ((uploadCount || 0) >= 20) {
+        alert(
+          `Upload limit reached! You can only upload 20 songs.\nYou currently have ${uploadCount} songs uploaded.\n\nPlease delete some songs before uploading new ones.`
+        );
+        setUploading(false);
+        return;
+      }
+
       let audioUrl: string | null = null;
       let embedUrl: string | null = null;
       let sourceType: string = uploadMethod;

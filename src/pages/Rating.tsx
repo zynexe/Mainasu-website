@@ -341,7 +341,30 @@ const Rating = () => {
             </div>
             <button
               className="add-music-btn"
-              onClick={() => setIsAddMusicModalOpen(true)}
+              onClick={async () => {
+                // Check upload count before opening modal
+                const currentUser = localStorage.getItem("currentUser");
+                if (!currentUser) {
+                  alert("Please select a user first");
+                  return;
+                }
+
+                const user = JSON.parse(currentUser);
+                const { count } = await supabase
+                  .from("music")
+                  .select("*", { count: "exact", head: true })
+                  .eq("uploaded_by", user.id);
+
+                if ((count || 0) >= 15) {
+                  alert(
+                    `Upload limit reached!\n\nYou have uploaded ${count}/15 songs.\n\nPlease delete some of your songs before uploading new ones.`
+                  );
+                  return;
+                }
+
+                setIsAddMusicModalOpen(true);
+              }}
+              title="Upload music (limit: 15 songs per user)"
             >
               <span className="add-music-icon">+</span>
               Add Music
