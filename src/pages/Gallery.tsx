@@ -13,6 +13,7 @@ import foodIcon from "../assets/food.svg";
 import gameIcon from "../assets/game.svg";
 import catIcon from "../assets/cat.svg";
 import randomIcon from "../assets/random.svg";
+import deleteIcon from "../assets/delete.svg"; // Add this
 
 interface Photo {
   id: string;
@@ -254,7 +255,7 @@ const Gallery = () => {
       <Navbar />
       <MobileNavbar />
       <div className="gallery-page">
-        {/* Categories Sidebar */}
+        {/* Categories Sidebar - Now with back button */}
         <aside className="categories-sidebar">
           <div className="sidebar-header">
             <h2>Categories</h2>
@@ -336,7 +337,11 @@ const Gallery = () => {
                             }
                             title="Delete photo"
                           >
-                            🗑️
+                            <img
+                              src={deleteIcon}
+                              alt="Delete"
+                              className="delete-icon"
+                            />
                           </button>
                         )}
                       </div>

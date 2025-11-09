@@ -22,35 +22,6 @@
   overflow-y: auto;
 }
 
-/* Back to Home Button */
-.back-to-home-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: transparent;
-  border: 1px solid #2a2a2a;
-  border-radius: 10px;
-  color: #9ca3af;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 1.5rem;
-}
-
-.back-to-home-btn:hover {
-  background: #1a1a1a;
-  border-color: #3a3a3a;
-  color: #fff;
-}
-
-.back-to-home-btn svg {
-  width: 20px;
-  height: 20px;
-}
-
 .sidebar-header {
   margin-bottom: 1.5rem;
 }
