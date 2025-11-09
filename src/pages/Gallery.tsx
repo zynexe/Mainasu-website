@@ -13,7 +13,7 @@ import foodIcon from "../assets/food.svg";
 import gameIcon from "../assets/game.svg";
 import catIcon from "../assets/cat.svg";
 import randomIcon from "../assets/random.svg";
-import deleteIcon from "../assets/delete.svg"; // Add this
+import deleteIcon from "../assets/delete.svg";
 
 interface Photo {
   id: string;
@@ -255,7 +255,7 @@ const Gallery = () => {
       <Navbar />
       <MobileNavbar />
       <div className="gallery-page">
-        {/* Categories Sidebar - Now with back button */}
+        {/* Categories Sidebar - Desktop Only */}
         <aside className="categories-sidebar">
           <div className="sidebar-header">
             <h2>Categories</h2>
@@ -295,6 +295,28 @@ const Gallery = () => {
               <span className="add-photo-icon">+</span>
               Add Photos
             </button>
+          </div>
+
+          {/* Mobile Tabs - Show only on mobile */}
+          <div className="mobile-category-tabs">
+            <div className="tabs-container">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  className={`tab-item ${
+                    selectedCategory === category.id ? "active" : ""
+                  }`}
+                  onClick={() => handleCategoryChange(category.id)}
+                >
+                  <img
+                    src={category.icon}
+                    alt={category.label}
+                    className="tab-icon"
+                  />
+                  <span>{category.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Photos Grid */}

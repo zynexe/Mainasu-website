@@ -572,20 +572,91 @@
   cursor: not-allowed;
 }
 
-/* Responsive */
-@media (max-width: 1400px) {
-  .masonry-grid {
-    column-count: 3;
-  }
+/* Mobile Category Tabs - Hidden on Desktop */
+.mobile-category-tabs {
+  display: none;
 }
 
+/* Responsive Styles */
 @media (max-width: 1024px) {
   .gallery-page {
     padding-left: 0;
   }
 
   .categories-sidebar {
-    display: none; /* Will add mobile menu later */
+    display: none;
+  }
+
+  /* Show Mobile Tabs */
+  .mobile-category-tabs {
+    display: block;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabs-container {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    min-width: min-content;
+  }
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    min-width: 100px;
+  }
+
+  .tab-item:hover {
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+    color: #fff;
+  }
+
+  .tab-item.active {
+    background: #fff;
+    border-color: #fff;
+    color: #000;
+  }
+
+  .tab-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .tab-item:hover .tab-icon,
+  .tab-item.active .tab-icon {
+    opacity: 1;
+  }
+
+  /* Invert icon color for active tab */
+  .tab-item.active .tab-icon {
+    filter: brightness(0);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .mobile-category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-category-tabs {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .masonry-grid {
@@ -609,6 +680,26 @@
     justify-content: center;
   }
 
+  /* Make tabs scroll more smoothly on mobile */
+  .tabs-container {
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .tab-item {
+    min-width: 90px;
+    padding: 0.75rem 1rem;
+  }
+
+  .tab-item span {
+    font-size: 0.8rem;
+  }
+
+  .tab-icon {
+    width: 20px;
+    height: 20px;
+  }
+
   .masonry-grid {
     column-count: 1;
   }
@@ -617,6 +708,47 @@
     left: 1rem;
     right: 1rem;
     justify-content: center;
+  }
+
+  .page-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .page-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .gallery-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .photo-count {
+    font-size: 0.85rem;
+  }
+
+  .add-photos-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .tab-item {
+    min-width: 80px;
+    padding: 0.65rem 0.875rem;
+  }
+
+  .tab-item span {
+    font-size: 0.75rem;
+  }
+
+  .tab-icon {
+    width: 18px;
+    height: 18px;
   }
 }
 
