@@ -12,6 +12,7 @@ import ChangeUser from "./components/ChangeUser";
 import Loader from "./components/Loader";
 import "./App.css";
 import Rating from "./pages/Rating";
+import Gallery from "./pages/Gallery";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -31,10 +32,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/waifu" element={<Waifu />} />
         <Route path="/change-user" element={<ChangeUser />} />
-        <Route
-          path="/tierlist"
-          element={<div>Tierlist Page (Coming Soon)</div>}
-        />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/Rating" element={<Rating />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

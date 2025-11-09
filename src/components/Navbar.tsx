@@ -49,18 +49,18 @@ const Navbar = () => {
         <div className="page-navbar-center">
           <div className="page-navbar-links">
             <Link
-              to="/tierlist"
+              to="/gallery"
               className={`page-nav-link ${
-                isActive("/tierlist") ? "active" : ""
+                isActive("/gallery") ? "active" : ""
               }`}
             >
-              Tierlist
+              Gallery
             </Link>
             <Link
               to="/waifu"
               className={`page-nav-link ${isActive("/waifu") ? "active" : ""}`}
             >
-              Waifu's
+              Waifu
             </Link>
             <Link
               to="/rating"

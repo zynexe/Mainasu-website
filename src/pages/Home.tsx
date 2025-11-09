@@ -6,7 +6,7 @@ import MobileNavbar from "../components/MobileNavbar";
 import "../styles/Home.css";
 import myBini from "../assets/myBini.webp";
 import song from "../assets/song.png";
-import tierList from "../assets/tierList.webp";
+import gallery from "../assets/gallery.png";
 import logo from "../assets/logo.png";
 
 const Home = () => {
@@ -66,11 +66,11 @@ const Home = () => {
               className="nav-card blue-border"
               onMouseEnter={() => handleCardHover(0, true)}
               onMouseLeave={() => handleCardHover(0, false)}
-              onClick={() => navigate("/tierlist")}
+              onClick={() => navigate("/gallery")}
             >
               <div className="card-content">
-                <h2 className="card-title">Character Tierlist</h2>
-                <img src={tierList} alt="Tier List" className="card-icon" />
+                <h2 className="card-title">Gallery</h2>
+                <img src={gallery} alt="Gallery" className="card-icon" />
               </div>
             </div>
 
