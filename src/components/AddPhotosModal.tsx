@@ -77,7 +77,7 @@ const AddPhotosModal = ({
 
     setSelectedFiles(newFiles);
     setPreviews(newPreviews);
-    
+
     // Clear error if no files left
     if (newFiles.length === 0) {
       setError("");
@@ -89,7 +89,6 @@ const AddPhotosModal = ({
     fileName: string
   ): Promise<{ success: boolean; file?: File; error?: string }> => {
     const maxSizeMB = 5;
-    const originalSize = file.size / (1024 * 1024); // Convert to MB
 
     // If file is already under 5MB, return it as is
     if (file.size <= maxSizeMB * 1024 * 1024) {
@@ -110,7 +109,6 @@ const AddPhotosModal = ({
 
     try {
       const compressedFile = await imageCompression(file, options);
-      const compressedSize = compressedFile.size / (1024 * 1024);
 
       // Check if compressed file is still over 5MB
       if (compressedFile.size > maxSizeMB * 1024 * 1024) {
@@ -180,7 +178,9 @@ const AddPhotosModal = ({
         const originalSize = formatFileSize(file.size);
 
         setCurrentStep(
-          `Compressing ${file.name} (${originalSize})... (${i + 1}/${totalFiles})`
+          `Compressing ${file.name} (${originalSize})... (${
+            i + 1
+          }/${totalFiles})`
         );
         setProgress(((i + 1) / totalFiles) * 30); // 0-30% for compression
 
@@ -219,7 +219,9 @@ const AddPhotosModal = ({
       // If some files failed
       if (failedFiles.length > 0) {
         setError(
-          `⚠️ ${failedFiles.length} file(s) could not be compressed below 5MB and will be skipped:\n${failedFiles.join(
+          `⚠️ ${
+            failedFiles.length
+          } file(s) could not be compressed below 5MB and will be skipped:\n${failedFiles.join(
             "\n"
           )}\n\nUploading ${compressedFiles.length} successful file(s)...`
         );
@@ -244,9 +246,9 @@ const AddPhotosModal = ({
       setCurrentStep("Complete!");
 
       // Show summary
-      let summaryMessage = `Successfully uploaded ${compressedFiles.length} photo${
-        compressedFiles.length !== 1 ? "s" : ""
-      }!`;
+      let summaryMessage = `Successfully uploaded ${
+        compressedFiles.length
+      } photo${compressedFiles.length !== 1 ? "s" : ""}!`;
       if (failedFiles.length > 0) {
         summaryMessage += `\n\n${failedFiles.length} file(s) were skipped (too large after compression).`;
       }
@@ -323,7 +325,9 @@ const AddPhotosModal = ({
 
           {/* File Upload */}
           <div className="form-group">
-            <label>Photos * (PNG/JPG, any size - will be compressed if over 5MB)</label>
+            <label>
+              Photos * (PNG/JPG, any size - will be compressed if over 5MB)
+            </label>
             <input
               type="file"
               accept="image/png,image/jpeg,image/jpg"
@@ -345,7 +349,11 @@ const AddPhotosModal = ({
 
           {/* Error/Warning Message */}
           {error && (
-            <div className={`error-message ${error.includes("⚠️") ? "warning-message" : ""}`}>
+            <div
+              className={`error-message ${
+                error.includes("⚠️") ? "warning-message" : ""
+              }`}
+            >
               {error}
             </div>
           )}
