@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
@@ -250,6 +250,56 @@ const Gallery = () => {
     (cat) => cat.id === selectedCategory
   );
 
+  // Add this component for lazy loading
+  const LazyImage = ({
+    src,
+    alt,
+    ...props
+  }: {
+    src: string;
+    alt: string;
+    [key: string]: any;
+  }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [isInView, setIsInView] = useState(false);
+    const imgRef = useRef<HTMLImageElement>(null);
+
+    useEffect(() => {
+      if (!imgRef.current) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setIsInView(true);
+              observer.disconnect();
+            }
+          });
+        },
+        { rootMargin: "50px" } // Start loading 50px before visible
+      );
+
+      observer.observe(imgRef.current);
+
+      return () => observer.disconnect();
+    }, []);
+
+    return (
+      <img
+        ref={imgRef}
+        src={isInView ? src : undefined}
+        alt={alt}
+        onLoad={() => setIsLoaded(true)}
+        style={{
+          opacity: isLoaded ? 1 : 0,
+          transition: "opacity 0.3s",
+          backgroundColor: "#1a1a1a",
+        }}
+        {...props}
+      />
+    );
+  };
+
   return (
     <>
       <Navbar />
@@ -343,7 +393,7 @@ const Gallery = () => {
 
                   return (
                     <div key={photo.id} className="photo-card">
-                      <img src={photo.image_url} alt="Gallery photo" />
+                      <LazyImage src={photo.image_url} alt="Gallery photo" />
                       <div className="photo-overlay">
                         <div className="uploader-info">
                           <span className="uploaded-by-label">uploaded by</span>

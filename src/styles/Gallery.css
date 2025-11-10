@@ -862,3 +862,140 @@
 .categories-sidebar::-webkit-scrollbar-thumb:hover {
   background: #333;
 }
+
+/* Upload Progress Bar */
+.upload-progress {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #0f0f0f;
+  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.progress-text {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.progress-percentage {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f1f1f1 0%, #f1f1f1 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated gradient effect */
+.progress-bar-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Hide preview grid during upload */
+.upload-progress ~ .preview-grid {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Hide preview grid during upload */
+.upload-progress ~ .preview-grid {
+  display: none;
+}
+
+/* Adjust modal max-height when showing progress */
+.add-photos-modal.uploading {
+  max-height: 80vh;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  width: 100%;
+}
+
+/* Warning Message (different from error) */
+.warning-message {
+  color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+/* File size display in preview */
+.file-size {
+  display: block;
+  font-size: 0.65rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Better error message formatting */
+.error-message {
+  white-space: pre-line; /* Allow line breaks */
+}
