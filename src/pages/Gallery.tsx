@@ -54,11 +54,46 @@ const Gallery = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inspectPhoto, setInspectPhoto] = useState<Photo | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLImageElement>(null);
 
   const photosPerPage = 12;
 
+  // CDN Configuration
+  const CDN_URL = "https://cdn.mainasu.my.id";
+  const USE_CDN = true; // Set to false to disable CDN
+
+  // Helper function to convert Supabase URL to CDN URL
+  const getCDNImageUrl = (
+    supabaseUrl: string,
+    size: "thumbnail" | "medium" | "full" = "thumbnail"
+  ): string => {
+    if (!USE_CDN) return supabaseUrl;
+
+    // Size configurations
+    const sizes = {
+      thumbnail: 600, // For gallery grid
+      medium: 1280, // For inspect modal
+      full: 1920, // For download (if needed)
+    };
+
+    // Extract path after gallery-photos/
+    // Example: https://kdrzewmcoystfhffcnme.supabase.co/storage/v1/object/public/gallery-photos/user/jalan/img.jpg
+    // Becomes: user/jalan/img.jpg
+    const urlParts = supabaseUrl.split("/gallery-photos/");
+    if (urlParts.length < 2) return supabaseUrl;
+
+    const imagePath = urlParts[1];
+
+    // Return CDN URL with optimization
+    return `${CDN_URL}/${imagePath}?width=${sizes[size]}&quality=80`;
+  };
+
   useEffect(() => {
-    // Get current user from localStorage
     const storedUser = localStorage.getItem("currentUser");
     if (storedUser) {
       setCurrentUser(JSON.parse(storedUser));
@@ -71,7 +106,6 @@ const Gallery = () => {
     try {
       setLoading(true);
 
-      // Fetch photos with uploader info
       const { data: photosData, error: photosError } = await supabase
         .from("photos")
         .select(
@@ -93,7 +127,6 @@ const Gallery = () => {
 
       if (photosError) throw photosError;
 
-      // Transform data
       const transformedPhotos: Photo[] = (photosData || []).map(
         (photo: any) => ({
           id: photo.id,
@@ -139,31 +172,26 @@ const Gallery = () => {
     }
 
     try {
-      // Upload each file
       const uploadPromises = data.files.map(async (file) => {
-        // Generate unique filename
         const fileExt = file.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random()
           .toString(36)
           .substring(7)}.${fileExt}`;
         const filePath = `${currentUser.id}/${data.category}/${fileName}`;
 
-        // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from("gallery-photos")
           .upload(filePath, file, {
-            cacheControl: "3600",
+            cacheControl: "31536000",
             upsert: false,
           });
 
         if (uploadError) throw uploadError;
 
-        // Get public URL
         const { data: urlData } = supabase.storage
           .from("gallery-photos")
           .getPublicUrl(filePath);
 
-        // Insert photo record into database
         const { error: dbError } = await supabase.from("photos").insert({
           image_url: urlData.publicUrl,
           category: data.category,
@@ -182,7 +210,6 @@ const Gallery = () => {
       );
       setIsModalOpen(false);
 
-      // Refresh photos if the uploaded category matches selected category
       if (data.category === selectedCategory) {
         fetchPhotos();
       }
@@ -204,19 +231,16 @@ const Gallery = () => {
     if (!confirmDelete) return;
 
     try {
-      // Extract file path from URL
       const urlParts = imageUrl.split("/gallery-photos/");
       if (urlParts.length < 2) throw new Error("Invalid image URL");
       const filePath = urlParts[1];
 
-      // Delete from storage
       const { error: storageError } = await supabase.storage
         .from("gallery-photos")
         .remove([filePath]);
 
       if (storageError) throw storageError;
 
-      // Delete from database
       const { error: dbError } = await supabase
         .from("photos")
         .delete()
@@ -233,12 +257,109 @@ const Gallery = () => {
     }
   };
 
-  // Filter photos by selected category
+  const handleInspectPhoto = (photo: Photo) => {
+    setInspectPhoto(photo);
+    setIsZoomed(false);
+    setZoomPosition({ x: 50, y: 50 });
+  };
+
+  const handleCloseInspect = () => {
+    setInspectPhoto(null);
+    setIsZoomed(false);
+    setZoomPosition({ x: 50, y: 50 });
+    setIsDragging(false);
+  };
+
+  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (!isZoomed) {
+      // Only allow zoom IN on click
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setZoomPosition({ x, y });
+      setIsZoomed(true);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isZoomed) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && isZoomed && imageRef.current) {
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+
+      // Calculate new position (inverted for natural movement)
+      const newX = Math.max(0, Math.min(100, zoomPosition.x - deltaX / 10));
+      const newY = Math.max(0, Math.min(100, zoomPosition.y - deltaY / 10));
+
+      setZoomPosition({ x: newX, y: newY });
+      setDragStart({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isZoomed) {
+      const touch = e.touches[0];
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+      setIsDragging(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && isZoomed && e.touches.length === 1) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStart.x;
+      const deltaY = touch.clientY - dragStart.y;
+
+      const newX = Math.max(0, Math.min(100, zoomPosition.x - deltaX / 8));
+      const newY = Math.max(0, Math.min(100, zoomPosition.y - deltaY / 8));
+
+      setZoomPosition({ x: newX, y: newY });
+      setDragStart({ x: touch.clientX, y: touch.clientY });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Double tap to zoom on mobile
+  let lastTap = 0;
+  const handleDoubleTap = (e: React.TouchEvent<HTMLImageElement>) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+
+    if (tapLength < 300 && tapLength > 0) {
+      // Double tap detected
+      if (!isZoomed) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const touch = e.changedTouches[0];
+        const x = ((touch.clientX - rect.left) / rect.width) * 100;
+        const y = ((touch.clientY - rect.top) / rect.height) * 100;
+        setZoomPosition({ x, y });
+        setIsZoomed(true);
+      } else {
+        setIsZoomed(false);
+        setZoomPosition({ x: 50, y: 50 });
+      }
+    }
+    lastTap = currentTime;
+  };
+
   const filteredPhotos = photos.filter(
     (photo) => photo.category === selectedCategory
   );
 
-  // Pagination
   const totalPages = Math.ceil(filteredPhotos.length / photosPerPage);
   const startIndex = (currentPage - 1) * photosPerPage;
   const currentPhotos = filteredPhotos.slice(
@@ -250,7 +371,6 @@ const Gallery = () => {
     (cat) => cat.id === selectedCategory
   );
 
-  // Add this component for lazy loading
   const LazyImage = ({
     src,
     alt,
@@ -276,7 +396,7 @@ const Gallery = () => {
             }
           });
         },
-        { rootMargin: "50px" } // Start loading 50px before visible
+        { rootMargin: "50px" }
       );
 
       observer.observe(imgRef.current);
@@ -290,6 +410,7 @@ const Gallery = () => {
         src={isInView ? src : undefined}
         alt={alt}
         onLoad={() => setIsLoaded(true)}
+        loading="lazy"
         style={{
           opacity: isLoaded ? 1 : 0,
           transition: "opacity 0.3s",
@@ -305,7 +426,6 @@ const Gallery = () => {
       <Navbar />
       <MobileNavbar />
       <div className="gallery-page">
-        {/* Categories Sidebar - Desktop Only */}
         <aside className="categories-sidebar">
           <div className="sidebar-header">
             <h2>Categories</h2>
@@ -330,9 +450,7 @@ const Gallery = () => {
           </nav>
         </aside>
 
-        {/* Main Content */}
         <main className="gallery-content">
-          {/* Header */}
           <div className="gallery-header">
             <div className="header-left">
               <h1>{selectedCategoryData?.label || "Gallery"}</h1>
@@ -347,7 +465,6 @@ const Gallery = () => {
             </button>
           </div>
 
-          {/* Mobile Tabs - Show only on mobile */}
           <div className="mobile-category-tabs">
             <div className="tabs-container">
               {categories.map((category) => (
@@ -369,7 +486,6 @@ const Gallery = () => {
             </div>
           </div>
 
-          {/* Photos Grid */}
           {loading ? (
             <div className="loading-state">
               <p>Loading photos...</p>
@@ -393,7 +509,15 @@ const Gallery = () => {
 
                   return (
                     <div key={photo.id} className="photo-card">
-                      <LazyImage src={photo.image_url} alt="Gallery photo" />
+                      <div
+                        className="photo-image-wrapper"
+                        onClick={() => handleInspectPhoto(photo)} // ✅ Click handler here
+                      >
+                        <LazyImage
+                          src={getCDNImageUrl(photo.image_url, "thumbnail")}
+                          alt="Gallery photo"
+                        />
+                      </div>
                       <div className="photo-overlay">
                         <div className="uploader-info">
                           <span className="uploaded-by-label">uploaded by</span>
@@ -404,9 +528,10 @@ const Gallery = () => {
                         {canDelete && (
                           <button
                             className="delete-photo-btn"
-                            onClick={() =>
-                              handleDeletePhoto(photo.id, photo.image_url)
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeletePhoto(photo.id, photo.image_url);
+                            }}
                             title="Delete photo"
                           >
                             <img
@@ -422,7 +547,6 @@ const Gallery = () => {
                 })}
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="pagination">
                   <button
@@ -473,6 +597,114 @@ const Gallery = () => {
         onSubmit={handleModalSubmit}
         categories={categories}
       />
+
+      {/* Inspect Photo Modal */}
+      {inspectPhoto && (
+        <div
+          className="inspect-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handleCloseInspect();
+            }
+          }}
+        >
+          <div
+            className="inspect-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="inspect-close-btn" onClick={handleCloseInspect}>
+              ✕
+            </button>
+
+            {/* Zoom indicator */}
+            {!isZoomed && (
+              <div className="zoom-hint">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <circle cx="11" cy="11" r="8" strokeWidth="2" />
+                  <path d="m21 21-4.35-4.35" strokeWidth="2" />
+                  <path d="M11 8v6M8 11h6" strokeWidth="2" />
+                </svg>
+                <span>Click to zoom</span>
+              </div>
+            )}
+
+            <div
+              className={`inspect-image-container ${isZoomed ? "zoomed" : ""} ${
+                isDragging ? "dragging" : ""
+              }`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <img
+                ref={imageRef}
+                src={getCDNImageUrl(inspectPhoto.image_url, "medium")}
+                alt="Inspected photo"
+                className="inspect-image"
+                onClick={handleImageClick}
+                onTouchEnd={handleDoubleTap}
+                style={
+                  isZoomed
+                    ? {
+                        cursor: isDragging ? "grabbing" : "grab",
+                        transform: `scale(2.5)`,
+                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                      }
+                    : {
+                        cursor: "zoom-in",
+                      }
+                }
+                draggable={false}
+              />
+            </div>
+
+            <div className="inspect-info">
+              <span className="inspect-uploader">
+                Uploaded by {inspectPhoto.uploader_name}
+              </span>
+              <span className="inspect-date">
+                {new Date(inspectPhoto.created_at).toLocaleDateString()}
+              </span>
+            </div>
+
+            {/* Zoom controls for mobile */}
+            {isZoomed && (
+              <div className="zoom-controls">
+                <button
+                  className="zoom-out-btn"
+                  onClick={() => {
+                    setIsZoomed(false);
+                    setZoomPosition({ x: 50, y: 50 });
+                  }}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <circle cx="11" cy="11" r="8" strokeWidth="2" />
+                    <path d="m21 21-4.35-4.35" strokeWidth="2" />
+                    <path d="M8 11h6" strokeWidth="2" />
+                  </svg>
+                  Zoom Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 };
