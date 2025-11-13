@@ -477,24 +477,94 @@ const Waifu = () => {
                       setCurrentPage((prev) => Math.max(1, prev - 1))
                     }
                     disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
+                  ></button>
 
                   <div className="page-numbers">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
+                    {(() => {
+                      // If 4 or fewer pages, show all
+                      if (totalPages <= 4) {
+                        return Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1
+                        ).map((page) => (
+                          <button
+                            key={page}
+                            className={`page-number ${
+                              currentPage === page ? "active" : ""
+                            }`}
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        ));
+                      }
+
+                      // More than 4 pages: show 1, 2, ..., last
+                      const pages = [];
+
+                      // Always show first page
+                      pages.push(
                         <button
-                          key={page}
+                          key={1}
                           className={`page-number ${
-                            currentPage === page ? "active" : ""
+                            currentPage === 1 ? "active" : ""
                           }`}
-                          onClick={() => setCurrentPage(page)}
+                          onClick={() => setCurrentPage(1)}
                         >
-                          {page}
+                          1
                         </button>
-                      )
-                    )}
+                      );
+
+                      // Show second page or current page if near start
+                      if (currentPage <= 3) {
+                        pages.push(
+                          <button
+                            key={2}
+                            className={`page-number ${
+                              currentPage === 2 ? "active" : ""
+                            }`}
+                            onClick={() => setCurrentPage(2)}
+                          >
+                            2
+                          </button>
+                        );
+                      } else {
+                        // Show current page if in middle
+                        pages.push(
+                          <button
+                            key={currentPage}
+                            className="page-number active"
+                            onClick={() => setCurrentPage(currentPage)}
+                          >
+                            {currentPage}
+                          </button>
+                        );
+                      }
+
+                      // Show ellipsis if needed
+                      if (currentPage < totalPages - 1 && totalPages > 3) {
+                        pages.push(
+                          <span key="ellipsis" className="page-ellipsis">
+                            ...
+                          </span>
+                        );
+                      }
+
+                      // Always show last page
+                      pages.push(
+                        <button
+                          key={totalPages}
+                          className={`page-number ${
+                            currentPage === totalPages ? "active" : ""
+                          }`}
+                          onClick={() => setCurrentPage(totalPages)}
+                        >
+                          {totalPages}
+                        </button>
+                      );
+
+                      return pages;
+                    })()}
                   </div>
 
                   <button
@@ -503,9 +573,7 @@ const Waifu = () => {
                       setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                     }
                     disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
+                  ></button>
                 </div>
               )}
             </>

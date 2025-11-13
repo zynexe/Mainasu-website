@@ -104,7 +104,7 @@ const AddPhotosModal = ({
       maxWidthOrHeight: 1920,
       useWebWorker: true,
       fileType: file.type as string,
-      initialQuality: 0.8,
+      initialQuality: 0.7,
     };
 
     try {
@@ -172,17 +172,21 @@ const AddPhotosModal = ({
       const failedFiles: string[] = [];
       const totalFiles = selectedFiles.length;
 
-      // Compress all images
+      // ========================================
+      // STEP 1: COMPRESSION (0-100%)
+      // ========================================
       for (let i = 0; i < totalFiles; i++) {
         const file = selectedFiles[i];
         const originalSize = formatFileSize(file.size);
 
+        // Update progress for compression
+        const compressionProgress = (i / totalFiles) * 100;
+        setProgress(compressionProgress);
         setCurrentStep(
           `Compressing ${file.name} (${originalSize})... (${
             i + 1
           }/${totalFiles})`
         );
-        setProgress(((i + 1) / totalFiles) * 30); // 0-30% for compression
 
         const result = await compressImage(file, file.name);
 
@@ -190,19 +194,33 @@ const AddPhotosModal = ({
           compressedFiles.push(result.file);
           const compressedSize = formatFileSize(result.file.size);
 
-          // Show compression info
+          // Show compression result
           if (file.size > 5 * 1024 * 1024) {
             setCurrentStep(
-              `✓ ${file.name}: ${originalSize} → ${compressedSize}`
+              `✓ ${file.name}: ${originalSize} → ${compressedSize} (${
+                i + 1
+              }/${totalFiles})`
+            );
+          } else {
+            setCurrentStep(
+              `✓ ${file.name}: No compression needed (${i + 1}/${totalFiles})`
             );
           }
         } else {
           failedFiles.push(result.error || file.name);
+          setCurrentStep(
+            `✗ ${file.name}: Compression failed (${i + 1}/${totalFiles})`
+          );
         }
 
         // Small delay to show the message
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
+
+      // Complete compression step
+      setProgress(100);
+      setCurrentStep("Compression complete!");
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // If all files failed
       if (compressedFiles.length === 0) {
@@ -228,13 +246,29 @@ const AddPhotosModal = ({
         await new Promise((resolve) => setTimeout(resolve, 2000)); // Show error for 2 seconds
       }
 
-      // Update step to uploading
+      // ========================================
+      // STEP 2: UPLOADING (0-100%)
+      // ========================================
+
+      // Reset progress bar for upload step
+      setProgress(0);
       setCurrentStep(
         `Uploading ${compressedFiles.length} image${
           compressedFiles.length !== 1 ? "s" : ""
         }...`
       );
-      setProgress(40); // Start upload at 40%
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Simulate upload progress (since onSubmit doesn't provide progress callback)
+      const uploadInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(uploadInterval);
+            return 90; // Stop at 90%, complete when actually done
+          }
+          return prev + 10;
+        });
+      }, 200);
 
       // Call parent's onSubmit with compressed files
       await onSubmit({
@@ -242,8 +276,10 @@ const AddPhotosModal = ({
         files: compressedFiles,
       });
 
+      // Clear interval and complete
+      clearInterval(uploadInterval);
       setProgress(100);
-      setCurrentStep("Complete!");
+      setCurrentStep("Upload complete!");
 
       // Show summary
       let summaryMessage = `Successfully uploaded ${
@@ -260,7 +296,7 @@ const AddPhotosModal = ({
         if (compressedFiles.length > 0) {
           alert(summaryMessage);
         }
-      }, 500);
+      }, 800);
     } catch (error: any) {
       console.error("Upload error:", error);
       setError(error?.message || "Failed to upload photos. Please try again.");

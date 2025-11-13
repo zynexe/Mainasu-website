@@ -137,7 +137,10 @@ const MobileNavbar = () => {
           <div ref={menuRef} className="mobile-menu">
             <div className="mobile-menu-content">
               {/* User Profile Section - Now Clickable */}
-              <button className="mobile-menu-profile" onClick={handleChangeUser}>
+              <button
+                className="mobile-menu-profile"
+                onClick={handleChangeUser}
+              >
                 <img
                   src={currentUser?.avatar_url || personIcon}
                   alt="Profile"
@@ -157,7 +160,9 @@ const MobileNavbar = () => {
               {/* Navigation Links */}
               <div className="mobile-menu-links">
                 <button
-                  className={`mobile-menu-link ${isActive("/") ? "active" : ""}`}
+                  className={`mobile-menu-link ${
+                    isActive("/") ? "active" : ""
+                  }`}
                   onClick={() => handleNavigate("/")}
                 >
                   <span className="mobile-link-text">Home</span>
@@ -165,11 +170,11 @@ const MobileNavbar = () => {
 
                 <button
                   className={`mobile-menu-link ${
-                    isActive("/tierlist") ? "active" : ""
+                    isActive("/gallery") ? "active" : ""
                   }`}
-                  onClick={() => handleNavigate("/tierlist")}
+                  onClick={() => handleNavigate("/gallery")}
                 >
-                  <span className="mobile-link-text">Tierlist</span>
+                  <span className="mobile-link-text">Gallery</span>
                 </button>
 
                 <button

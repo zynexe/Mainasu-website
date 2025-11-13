@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  cursor: pointer;
+  cursor: pointer;                                           
   transition: opacity 0.3s ease;
 }
 

@@ -40,6 +40,25 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
     setError("");
   }, [initialData, isOpen]);
 
+  // Manage body scroll when modal is open/closed
+  useEffect(() => {
+    if (isOpen) {
+      // Prevent body scroll when modal opens
+      document.body.classList.add("modal-open");
+      document.body.style.overflow = "hidden";
+    } else {
+      // Restore body scroll when modal closes
+      document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {

@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: #0a0a0a;
   color: #fff;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 /* Header */
@@ -10,6 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-top: 4rem;
   margin-bottom: 3rem;
   gap: 2rem;
 }
@@ -53,6 +54,7 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .member-avatar {
@@ -60,12 +62,21 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+}
+
+.member-details {
+  flex: 1; /* Allow text truncation if needed */
 }
 
 .member-details h3 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .member-details p {
@@ -78,10 +89,13 @@
   margin-left: auto;
   color: #fff;
   font-size: 0.9rem;
+  white-space: nowrap;
+  text-align: right;
 }
 
 .count-label {
   color: #9ca3af;
+  display: inline;
 }
 
 /* Waifu Grid */
@@ -198,10 +212,10 @@
   line-height: 1.4;
 }
 
-/* Pagination */
+/* Pagination - Enhanced */
 .pagination {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   right: 2rem;
   display: flex;
   align-items: center;
@@ -210,6 +224,8 @@
   padding: 0.75rem;
   border-radius: 12px;
   border: 1px solid #2a2a2a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
 }
 
 .page-btn {
@@ -220,33 +236,43 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .page-btn:hover:not(:disabled) {
   background: #333;
+  transform: translateY(-1px);
+}
+
+.page-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .page-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .page-numbers {
   display: flex;
   gap: 0.25rem;
+  align-items: center;
 }
 
 .page-number {
   background: transparent;
   border: none;
   color: #9ca3af;
-  width: 36px;
+  min-width: 36px;
   height: 36px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-number:hover {
@@ -257,7 +283,78 @@
 .page-number.active {
   background: #fff;
   color: #000;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.page-ellipsis {
+  color: #666;
+  padding: 0 0.5rem;
+  font-size: 0.9rem;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Mobile Pagination */
+@media (max-width: 768px) {
+  .pagination {
+    left: 1rem;
+    right: 1rem;
+    justify-content: space-between;
+    padding: 0.65rem;
+  }
+
+  .page-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .page-number {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .page-ellipsis {
+    padding: 0 0.3rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .pagination {
+    gap: 0.35rem;
+    padding: 0.5rem;
+  }
+
+  .page-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .page-number {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  /* Hide "Previous/Next" text on very small screens */
+  .page-btn::before {
+    content: "‹";
+    font-size: 1.2rem;
+  }
+
+  .page-btn:last-child::before {
+    content: "›";
+  }
+
+  .page-btn {
+    font-size: 0;
+    padding: 0.35rem 0.5rem;
+    min-width: 32px;
+  }
 }
 
 /* Searchbar Styles */
@@ -272,6 +369,8 @@
   top: 50%;
   transform: translateY(-50%);
   color: #666;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .search-input {
@@ -294,208 +393,379 @@
   border-color: #444;
 }
 
+/* Mobile: Move searchbar below header */
+@media (max-width: 768px) {
+  .waifu-header {
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    order: 2; /* Move searchbar below header content */
+  }
+
+  .waifu-searchbar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .waifu-header {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .header-left h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .search-input {
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+  }
+
+  .search-icon {
+    left: 0.85rem;
+  }
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh; /* Use 100vh instead of inset */
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
   justify-content: center;
   z-index: 1000;
+  overflow-y: auto; /* Enable vertical scroll on overlay */
+  overflow-x: hidden;
+  padding: 0.5rem;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .modal-content {
   background: #1a1a1a;
   border-radius: 16px;
   padding: 2rem;
-  width: 90%;
+  width: 100%;
   max-width: 500px;
+  max-height: none; /* Remove max-height constraint */
+  min-height: min-content; /* Allow natural height */
   position: relative;
   border: 1px solid #2a2a2a;
+  margin: auto 0; /* Center vertically in scrollable area */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0.5rem;
+/* Modal Header */
+.modal-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-}
-
-.modal-close:hover {
-  color: #fff;
-}
-
-.modal-content h2 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.form-group {
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #9ca3af;
-  font-size: 0.9rem;
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
 }
 
-.form-group input[type="text"] {
-  width: 100%;
+.modal-close {
+  background: transparent;
+  margin-bottom: 1rem;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.75rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Form Elements */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.form-input {
   background: #0f0f0f;
   border: 1px solid #2a2a2a;
   border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
   outline: none;
-  transition: border-color 0.2s;
+  border-color: #3b82f6;
+  background: #1a1a1a;
 }
 
-.form-group input[type="text"]:focus {
-  border-color: #444;
-}
-
-.image-upload input[type="file"] {
-  display: none;
-}
-
-.upload-label {
-  display: block;
-  cursor: pointer;
-  border: 2px dashed #333;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.upload-label:hover {
-  border-color: #555;
-}
-
-.upload-placeholder {
+/* Image Upload */
+.image-upload-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  color: #666;
-}
-
-.upload-placeholder span {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
+  gap: 0.75rem;
 }
 
 .image-preview {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
+  max-width: 200px;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 2px dashed #2a2a2a;
+  padding: 0.5rem;
+  background: #0f0f0f;
 }
 
-.error-message {
-  color: #ef4444;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(239, 68, 68, 0.1);
+.upload-btn {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.submit-btn {
-  width: 100%;
-  background: #fff;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  padding: 0.875rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  text-align: center;
 }
 
-.submit-btn:hover {
-  opacity: 0.9;
+.upload-btn:hover {
+  background: #333;
+  border-color: #444;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .waifu-page {
-    padding: 1rem;
-  }
-
-  .waifu-header {
-    flex-direction: column;
-  }
-
-  .waifu-searchbar {
-    width: 100%;
-  }
-
-  .waifu-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-
-  .pagination {
-    left: 1rem;
-    right: 1rem;
-    justify-content: center;
-  }
-}
-
+/* Action Buttons */
 .modal-actions {
   display: flex;
   gap: 0.75rem;
   margin-top: 1.5rem;
-}
-
-.delete-btn-modal {
-  flex: 1;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.875rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.delete-btn-modal:hover {
-  background: #b91c1c;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a2a2a;
 }
 
 .submit-btn {
-  flex: 2;
-  /* ...existing submit-btn styles... */
+  flex: 1;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.uploading-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+.submit-btn:hover {
+  background: #e5e5e5;
+  transform: translateY(-1px);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.delete-btn-modal {
+  background: #dc2626;
   color: #fff;
-  font-size: 1.2rem;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile Specific Fixes */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0.5rem;
+    align-items: flex-start; /* Ensure it starts from top */
+    padding-top: 1rem; /* Add top padding for mobile */
+    padding-bottom: 1rem; /* Add bottom padding */
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    max-width: 100%;
+    width: calc(100% - 1rem); /* Account for padding */
+    margin: 0; /* Remove auto margin */
+  }
+
+  .modal-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .form-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 0.875rem;
+  }
+
+  .image-preview {
+    max-width: 100%;
+    max-height: 250px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-btn {
+    width: 100%;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}
+
+/* Very small screens (iPhone SE, etc) */
+@media (max-width: 375px) {
+  .modal-overlay {
+    padding: 0.35rem;
+  }
+
+  .modal-content {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group {
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-input {
+    padding: 0.75rem;
+    font-size: 16px;
+  }
+
+  .image-preview {
+    max-height: 220px;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .modal-content {
+    margin: 0;
+  }
+
+  .image-preview {
+    max-height: 180px;
+  }
+}
+
+/* Fix for iOS safe areas */
+@supports (padding: max(0px)) {
+  .modal-overlay {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom scrollbar for modal overlay */
+.modal-overlay::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-overlay::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal-overlay::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.modal-overlay::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

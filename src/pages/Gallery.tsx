@@ -555,9 +555,7 @@ const Gallery = () => {
                       setCurrentPage((prev) => Math.max(1, prev - 1))
                     }
                     disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
+                  ></button>
 
                   <div className="page-numbers">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -581,9 +579,7 @@ const Gallery = () => {
                       setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                     }
                     disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
+                  ></button>
                 </div>
               )}
             </>

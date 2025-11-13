@@ -295,7 +295,7 @@
 /* Pagination - Fixed Position like Waifu Page */
 .pagination {
   position: fixed;
-  bottom: 2rem;
+  bottom: 1rem;
   right: 2rem;
   display: flex;
   align-items: center;
