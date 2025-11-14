@@ -36,6 +36,56 @@ const Waifu = () => {
   const membersPerPage = 5;
   const maxWaifusPerMember = 4;
 
+  // ========================================
+  // CDN Configuration - ADD THIS SECTION
+  // ========================================
+  const CDN_URL = "https://cdn.mainasu.my.id";
+  const USE_CDN = true; // Set to false to disable CDN
+
+  // Helper function to convert Supabase URL to CDN URL
+  const getCDNImageUrl = (
+    supabaseUrl: string,
+    size: "avatar" | "waifu" | "full" = "waifu"
+  ): string => {
+    if (!USE_CDN || !supabaseUrl) return supabaseUrl;
+
+    // Size configurations
+    const sizes = {
+      avatar: 200, // For user avatars (small)
+      waifu: 600, // For waifu cards
+      full: 1280, // For modal/full view
+    };
+
+    // Parse Supabase URL to extract bucket and path
+    try {
+      const url = new URL(supabaseUrl);
+      const pathParts = url.pathname.split("/");
+
+      // Find 'public' in path and get bucket name after it
+      const publicIndex = pathParts.indexOf("public");
+      if (publicIndex === -1 || publicIndex >= pathParts.length - 1) {
+        return supabaseUrl; // Invalid format
+      }
+
+      const bucketName = pathParts[publicIndex + 1];
+      const imagePath = pathParts.slice(publicIndex + 2).join("/");
+
+      if (!bucketName || !imagePath) {
+        return supabaseUrl; // Missing bucket or path
+      }
+
+      // Return CDN URL with optimization
+      return `${CDN_URL}/${bucketName}/${imagePath}?width=${sizes[size]}&quality=80`;
+    } catch (error) {
+      console.error("Error parsing Supabase URL:", error);
+      return supabaseUrl; // Return original on error
+    }
+  };
+
+  // ========================================
+  // END CDN Configuration
+  // ========================================
+
   useEffect(() => {
     // Get current user from localStorage
     const storedUser = localStorage.getItem("currentUser");
@@ -388,7 +438,10 @@ const Waifu = () => {
                   <div key={member.id} className="member-section">
                     <div className="member-info">
                       <img
-                        src={member.avatar_url || "/default-avatar.png"}
+                        src={getCDNImageUrl(
+                          member.avatar_url || "/default-avatar.png",
+                          "avatar"
+                        )}
                         alt={member.name}
                         className="member-avatar"
                       />
@@ -432,7 +485,11 @@ const Waifu = () => {
                             opacity: isCurrentUser ? 1 : 0.7,
                           }}
                         >
-                          <img src={waifu.image_url} alt={waifu.name} />
+                          <img
+                            src={getCDNImageUrl(waifu.image_url, "waifu")}
+                            alt={waifu.name}
+                            loading="lazy"
+                          />
                           <div className="waifu-info">
                             <h4>{waifu.name}</h4>
                             <p>{waifu.role}</p>
@@ -477,7 +534,9 @@ const Waifu = () => {
                       setCurrentPage((prev) => Math.max(1, prev - 1))
                     }
                     disabled={currentPage === 1}
-                  ></button>
+                  >
+                    Previous
+                  </button>
 
                   <div className="page-numbers">
                     {(() => {
@@ -573,7 +632,9 @@ const Waifu = () => {
                       setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                     }
                     disabled={currentPage === totalPages}
-                  ></button>
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </>
