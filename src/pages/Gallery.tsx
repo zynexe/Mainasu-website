@@ -72,7 +72,7 @@ const Gallery = () => {
     supabaseUrl: string,
     size: "thumbnail" | "medium" | "full" = "thumbnail"
   ): string => {
-    if (!USE_CDN) return supabaseUrl;
+    if (!USE_CDN || !supabaseUrl) return supabaseUrl;
 
     // Size configurations
     const sizes = {
@@ -81,16 +81,37 @@ const Gallery = () => {
       full: 1920, // For download (if needed)
     };
 
-    // Extract path after gallery-photos/
-    // Example: https://kdrzewmcoystfhffcnme.supabase.co/storage/v1/object/public/gallery-photos/user/jalan/img.jpg
-    // Becomes: user/jalan/img.jpg
-    const urlParts = supabaseUrl.split("/gallery-photos/");
-    if (urlParts.length < 2) return supabaseUrl;
+    try {
+      // Parse Supabase URL to extract bucket and path
+      const url = new URL(supabaseUrl);
+      const pathParts = url.pathname.split("/");
 
-    const imagePath = urlParts[1];
+      // Find 'public' in path to locate bucket name
+      // Example: /storage/v1/object/public/gallery-photos/user-id/category/image.jpg
+      const publicIndex = pathParts.indexOf("public");
 
-    // Return CDN URL with optimization
-    return `${CDN_URL}/${imagePath}?width=${sizes[size]}&quality=80`;
+      if (publicIndex === -1 || publicIndex >= pathParts.length - 2) {
+        console.warn("Invalid Supabase URL format:", supabaseUrl);
+        return supabaseUrl; // Return original if format is wrong
+      }
+
+      // Extract bucket name (comes right after 'public')
+      const bucketName = pathParts[publicIndex + 1];
+
+      // Extract image path (everything after bucket name)
+      const imagePath = pathParts.slice(publicIndex + 2).join("/");
+
+      if (!bucketName || !imagePath) {
+        console.warn("Missing bucket or path:", { bucketName, imagePath });
+        return supabaseUrl;
+      }
+
+      // Return CDN URL with bucket name included
+      return `${CDN_URL}/${bucketName}/${imagePath}?width=${sizes[size]}&quality=80`;
+    } catch (error) {
+      console.error("Error parsing Supabase URL:", error);
+      return supabaseUrl; // Return original on error
+    }
   };
 
   useEffect(() => {
@@ -555,7 +576,9 @@ const Gallery = () => {
                       setCurrentPage((prev) => Math.max(1, prev - 1))
                     }
                     disabled={currentPage === 1}
-                  ></button>
+                  >
+                    Previous
+                  </button>
 
                   <div className="page-numbers">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -579,7 +602,9 @@ const Gallery = () => {
                       setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                     }
                     disabled={currentPage === totalPages}
-                  ></button>
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </>
