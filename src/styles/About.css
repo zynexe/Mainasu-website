@@ -326,8 +326,9 @@
   padding: 2px; /* Border thickness */
   background: conic-gradient(
     from var(--angle),
-    rgba(255, 255, 255, 0.062),
-    rgba(255, 255, 255, 0.637)
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.39),
+    rgba(255, 255, 255, 0.795)
   );
   border-radius: 12px;
   animation: spin 3s linear infinite;
