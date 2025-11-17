@@ -1191,7 +1191,7 @@
 .inspect-download-btn {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%) translateY(-85%);
+  transform: translateX(-50%) translateY(19rem);
 
   display: flex;
   align-items: center;
@@ -1292,6 +1292,7 @@
     bottom: 4rem;
     padding: 0.65rem 1.25rem;
     font-size: 0.9rem;
+    transform: translateX(-50%) translateY(-2rem);
   }
 
   .download-icon {
@@ -1327,6 +1328,7 @@
     bottom: 3.5rem;
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
+    transform: translateX(-50%) translateY(-1.5rem);
   }
 
   .inspect-info {
@@ -1344,7 +1346,7 @@
     font-size: 0.85rem;
     width: auto;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-4rem);
   }
 
   .download-icon {
