@@ -55,11 +55,15 @@ const Gallery = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [inspectPhoto, setInspectPhoto] = useState<Photo | null>(null);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1); // Changed from isZoomed
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Pinch zoom state for mobile
+  const [lastDistance, setLastDistance] = useState(0);
 
   const photosPerPage = 12;
 
@@ -280,43 +284,93 @@ const Gallery = () => {
 
   const handleInspectPhoto = (photo: Photo) => {
     setInspectPhoto(photo);
-    setIsZoomed(false);
+    setZoomLevel(1);
     setZoomPosition({ x: 50, y: 50 });
   };
 
   const handleCloseInspect = () => {
     setInspectPhoto(null);
-    setIsZoomed(false);
+    setZoomLevel(1);
     setZoomPosition({ x: 50, y: 50 });
     setIsDragging(false);
   };
 
-  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (!isZoomed) {
-      // Only allow zoom IN on click
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setZoomPosition({ x, y });
-      setIsZoomed(true);
+  // Add download handler
+  const handleDownloadImage = async () => {
+    if (!inspectPhoto) return;
+
+    try {
+      // Get the full resolution image URL
+      const imageUrl = getCDNImageUrl(inspectPhoto.image_url, "full");
+
+      // Fetch the image
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Generate filename from original URL or use timestamp
+      const originalFilename =
+        inspectPhoto.image_url.split("/").pop() || "image.jpg";
+      const filename = `mainasu-${inspectPhoto.category}-${originalFilename}`;
+
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      alert("Failed to download image. Please try again.");
     }
   };
 
+  // Scroll to zoom (Desktop)
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    const delta = e.deltaY * -0.001;
+    const newZoom = Math.min(Math.max(1, zoomLevel + delta), 4); // Min 1x, Max 4x
+
+    // Calculate zoom position based on mouse position
+    if (imageRef.current) {
+      const rect = imageRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setZoomPosition({ x, y });
+    }
+
+    setZoomLevel(newZoom);
+  };
+
+  // Mouse drag handlers (when zoomed) - UPDATED
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (isZoomed) {
+    if (zoomLevel > 1) {
       setIsDragging(true);
       setDragStart({ x: e.clientX, y: e.clientY });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && isZoomed && imageRef.current) {
+    if (isDragging && zoomLevel > 1 && imageRef.current) {
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
 
-      // Calculate new position (inverted for natural movement)
-      const newX = Math.max(0, Math.min(100, zoomPosition.x - deltaX / 10));
-      const newY = Math.max(0, Math.min(100, zoomPosition.y - deltaY / 10));
+      // Much slower sensitivity - inversely proportional to zoom level
+      const sensitivity = 0.3 / zoomLevel; // Reduced from 10 to 0.3
+      const newX = Math.max(
+        0,
+        Math.min(100, zoomPosition.x - deltaX * sensitivity)
+      );
+      const newY = Math.max(
+        0,
+        Math.min(100, zoomPosition.y - deltaY * sensitivity)
+      );
 
       setZoomPosition({ x: newX, y: newY });
       setDragStart({ x: e.clientX, y: e.clientY });
@@ -327,54 +381,81 @@ const Gallery = () => {
     setIsDragging(false);
   };
 
-  // Touch handlers for mobile
+  // Calculate distance between two touch points
+  const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Pinch to zoom (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 1 && isZoomed) {
+    if (e.touches.length === 2) {
+      // Two fingers - pinch zoom
+      const distance = getDistance(e.touches[0], e.touches[1]);
+      setLastDistance(distance);
+    } else if (e.touches.length === 1 && zoomLevel > 1) {
+      // One finger - drag when zoomed
       const touch = e.touches[0];
       setDragStart({ x: touch.clientX, y: touch.clientY });
       setIsDragging(true);
     }
   };
 
+  // Touch move handler (when zoomed) - UPDATED
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (isDragging && isZoomed && e.touches.length === 1) {
+    if (e.touches.length === 2) {
+      // Pinch zoom
+      e.preventDefault();
+      const distance = getDistance(e.touches[0], e.touches[1]);
+
+      if (lastDistance > 0) {
+        const delta = (distance - lastDistance) * 0.01;
+        const newZoom = Math.min(Math.max(1, zoomLevel + delta), 4);
+
+        // Calculate zoom center between two fingers
+        if (imageRef.current) {
+          const rect = imageRef.current.getBoundingClientRect();
+          const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+          const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+          const x = ((centerX - rect.left) / rect.width) * 100;
+          const y = ((centerY - rect.top) / rect.height) * 100;
+          setZoomPosition({ x, y });
+        }
+
+        setZoomLevel(newZoom);
+      }
+
+      setLastDistance(distance);
+    } else if (isDragging && zoomLevel > 1 && e.touches.length === 1) {
+      // Drag when zoomed - UPDATED SENSITIVITY
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStart.x;
       const deltaY = touch.clientY - dragStart.y;
 
-      const newX = Math.max(0, Math.min(100, zoomPosition.x - deltaX / 8));
-      const newY = Math.max(0, Math.min(100, zoomPosition.y - deltaY / 8));
+      // Slower sensitivity for touch - inversely proportional to zoom
+      const sensitivity = 0.25 / zoomLevel; // Reduced from 8 to 0.25
+      const newX = Math.max(
+        0,
+        Math.min(100, zoomPosition.x - deltaX * sensitivity)
+      );
+      const newY = Math.max(
+        0,
+        Math.min(100, zoomPosition.y - deltaY * sensitivity)
+      );
 
       setZoomPosition({ x: newX, y: newY });
       setDragStart({ x: touch.clientX, y: touch.clientY });
     }
   };
 
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  // Double tap to zoom on mobile
-  let lastTap = 0;
-  const handleDoubleTap = (e: React.TouchEvent<HTMLImageElement>) => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-
-    if (tapLength < 300 && tapLength > 0) {
-      // Double tap detected
-      if (!isZoomed) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const touch = e.changedTouches[0];
-        const x = ((touch.clientX - rect.left) / rect.width) * 100;
-        const y = ((touch.clientY - rect.top) / rect.height) * 100;
-        setZoomPosition({ x, y });
-        setIsZoomed(true);
-      } else {
-        setIsZoomed(false);
-        setZoomPosition({ x: 50, y: 50 });
-      }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      setLastDistance(0);
     }
-    lastTap = currentTime;
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+    }
   };
 
   const filteredPhotos = photos.filter(
@@ -637,28 +718,12 @@ const Gallery = () => {
               ✕
             </button>
 
-            {/* Zoom indicator */}
-            {!isZoomed && (
-              <div className="zoom-hint">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                >
-                  <circle cx="11" cy="11" r="8" strokeWidth="2" />
-                  <path d="m21 21-4.35-4.35" strokeWidth="2" />
-                  <path d="M11 8v6M8 11h6" strokeWidth="2" />
-                </svg>
-                <span>Click to zoom</span>
-              </div>
-            )}
-
             <div
-              className={`inspect-image-container ${isZoomed ? "zoomed" : ""} ${
-                isDragging ? "dragging" : ""
-              }`}
+              ref={containerRef}
+              className={`inspect-image-container ${
+                zoomLevel > 1 ? "zoomed" : ""
+              } ${isDragging ? "dragging" : ""}`}
+              onWheel={handleWheel}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -672,22 +737,50 @@ const Gallery = () => {
                 src={getCDNImageUrl(inspectPhoto.image_url, "medium")}
                 alt="Inspected photo"
                 className="inspect-image"
-                onClick={handleImageClick}
-                onTouchEnd={handleDoubleTap}
-                style={
-                  isZoomed
-                    ? {
-                        cursor: isDragging ? "grabbing" : "grab",
-                        transform: `scale(2.5)`,
-                        transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                      }
-                    : {
-                        cursor: "zoom-in",
-                      }
-                }
+                style={{
+                  cursor:
+                    zoomLevel > 1
+                      ? isDragging
+                        ? "grabbing"
+                        : "grab"
+                      : "default",
+                  transform: `scale(${zoomLevel})`,
+                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                  transition: isDragging ? "none" : "transform 0.1s ease-out",
+                }}
                 draggable={false}
               />
             </div>
+
+            {/* Download Button */}
+            <button
+              className="inspect-download-btn"
+              onClick={handleDownloadImage}
+              title="Download image"
+            >
+              <svg
+                className="download-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 3V16M12 16L16 12M12 16L8 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3 16V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Download
+            </button>
 
             <div className="inspect-info">
               <span className="inspect-uploader">
@@ -696,33 +789,13 @@ const Gallery = () => {
               <span className="inspect-date">
                 {new Date(inspectPhoto.created_at).toLocaleDateString()}
               </span>
+              {/* Show zoom level indicator */}
+              {zoomLevel > 1 && (
+                <span className="zoom-indicator">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+              )}
             </div>
-
-            {/* Zoom controls for mobile */}
-            {isZoomed && (
-              <div className="zoom-controls">
-                <button
-                  className="zoom-out-btn"
-                  onClick={() => {
-                    setIsZoomed(false);
-                    setZoomPosition({ x: 50, y: 50 });
-                  }}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <circle cx="11" cy="11" r="8" strokeWidth="2" />
-                    <path d="m21 21-4.35-4.35" strokeWidth="2" />
-                    <path d="M8 11h6" strokeWidth="2" />
-                  </svg>
-                  Zoom Out
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}

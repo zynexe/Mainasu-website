@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
 import MobileNavbar from "../components/MobileNavbar";
 import "../styles/About.css";
@@ -12,23 +13,67 @@ import supabaseIcon from "../assets/supabase-icon.webp";
 import cssIcon from "../assets/css3-icon.webp";
 import vercelIcon from "../assets/vercel-icon.webp";
 import caffeineIcon from "../assets/caffeine-icon.webp";
-import { supabase } from "../lib/supabase";
-import type { User } from "../lib/supabase";
 
-interface WaifuItem {
+interface Waifu {
+  id: string;
+  name: string;
+  image_url: string;
+}
+
+interface Member {
   id: string;
   name: string;
   role: string;
-  image_url: string;
-  user_id: string;
+  avatar_url: string | null;
+  is_supporter?: boolean;
+  waifus?: Waifu[];
 }
 
-interface MemberWithWaifus extends User {
-  waifus: WaifuItem[];
-}
+// ========================================
+// CDN Configuration - ADD THIS SECTION
+// ========================================
+const CDN_URL = "https://cdn.mainasu.my.id";
+const USE_CDN = true;
+
+const getCDNImageUrl = (
+  supabaseUrl: string | null,
+  size: "avatar" | "waifu" = "avatar"
+): string => {
+  if (!USE_CDN || !supabaseUrl) return supabaseUrl || "/default-avatar.png";
+
+  try {
+    const url = new URL(supabaseUrl);
+    const pathParts = url.pathname.split("/");
+    const publicIndex = pathParts.indexOf("public");
+
+    if (publicIndex === -1 || publicIndex >= pathParts.length - 2) {
+      return supabaseUrl;
+    }
+
+    const bucketName = pathParts[publicIndex + 1];
+    const imagePath = pathParts.slice(publicIndex + 2).join("/");
+
+    if (!bucketName || !imagePath) {
+      return supabaseUrl;
+    }
+
+    const sizes = {
+      avatar: 200,
+      waifu: 600,
+    };
+
+    return `${CDN_URL}/${bucketName}/${imagePath}?width=${sizes[size]}&quality=80`;
+  } catch (error) {
+    console.error("Error parsing Supabase URL:", error);
+    return supabaseUrl || "/default-avatar.png";
+  }
+};
+// ========================================
+// END CDN Configuration
+// ========================================
 
 const About = () => {
-  const [members, setMembers] = useState<MemberWithWaifus[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,14 +101,10 @@ const About = () => {
       if (waifusError) throw waifusError;
 
       // Combine users with their waifus
-      const membersWithWaifus: MemberWithWaifus[] = (usersData || []).map(
-        (user) => ({
-          ...user,
-          waifus: (waifusData || []).filter(
-            (waifu) => waifu.user_id === user.id
-          ),
-        })
-      );
+      const membersWithWaifus: Member[] = (usersData || []).map((user) => ({
+        ...user,
+        waifus: (waifusData || []).filter((waifu) => waifu.user_id === user.id),
+      }));
 
       setMembers(membersWithWaifus);
     } catch (error) {
@@ -123,33 +164,88 @@ const About = () => {
             ) : (
               <div className="members-grid">
                 {members.map((member) => (
-                  <div key={member.id} className="about-member-item">
-                    <img
-                      src={member.avatar_url || logo}
-                      alt={member.name}
-                      className="about-member-avatar"
-                    />
-                    <div className="about-member-info">
-                      <div className="about-member-name">{member.name}</div>
-                      <div className="about-member-role">{member.role}</div>
-                    </div>
+                  <div
+                    key={member.id}
+                    className={`about-member-item ${
+                      member.is_supporter ? "supporter" : ""
+                    }`}
+                  >
+                    {/* Only supporters get the inner wrapper */}
+                    {member.is_supporter ? (
+                      <div className="about-member-inner">
+                        <span className="supporter-badge">Supporter</span>
 
-                    {/* Waifu Circles */}
-                    {member.waifus.length > 0 && (
-                      <div className="waifu-circles">
-                        {member.waifus.slice(0, 4).map((waifu, index) => (
-                          <div
-                            key={waifu.id}
-                            className="waifu-circle"
-                            style={{
-                              backgroundImage: `url(${waifu.image_url})`,
-                              zIndex: 4 - index,
-                              right: `${index * 20}px`,
-                            }}
-                            title={waifu.name}
-                          />
-                        ))}
+                        <img
+                          src={getCDNImageUrl(
+                            member.avatar_url || "/default-avatar.png",
+                            "avatar"
+                          )}
+                          alt={member.name}
+                          className="about-member-avatar"
+                        />
+
+                        <div className="about-member-info">
+                          <h3 className="about-member-name">{member.name}</h3>
+                          <p className="about-member-role">{member.role}</p>
+                        </div>
+
+                        {member.waifus && member.waifus.length > 0 && (
+                          <div className="waifu-circles">
+                            {member.waifus.slice(0, 4).map((waifu, index) => (
+                              <div
+                                key={waifu.id}
+                                className="waifu-circle"
+                                style={{
+                                  backgroundImage: `url(${getCDNImageUrl(
+                                    waifu.image_url,
+                                    "waifu"
+                                  )})`,
+                                  right: `${index * 30}px`,
+                                  zIndex: 4 - index,
+                                }}
+                                title={waifu.name}
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
+                    ) : (
+                      // Non-supporters - NO inner wrapper
+                      <>
+                        <img
+                          src={getCDNImageUrl(
+                            member.avatar_url || "/default-avatar.png",
+                            "avatar"
+                          )}
+                          alt={member.name}
+                          className="about-member-avatar"
+                        />
+
+                        <div className="about-member-info">
+                          <h3 className="about-member-name">{member.name}</h3>
+                          <p className="about-member-role">{member.role}</p>
+                        </div>
+
+                        {member.waifus && member.waifus.length > 0 && (
+                          <div className="waifu-circles">
+                            {member.waifus.slice(0, 4).map((waifu, index) => (
+                              <div
+                                key={waifu.id}
+                                className="waifu-circle"
+                                style={{
+                                  backgroundImage: `url(${getCDNImageUrl(
+                                    waifu.image_url,
+                                    "waifu"
+                                  )})`,
+                                  right: `${index * 30}px`,
+                                  zIndex: 4 - index,
+                                }}
+                                title={waifu.name}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}

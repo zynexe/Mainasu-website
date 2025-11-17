@@ -14,7 +14,7 @@
 .about-grid {
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: 2rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -22,7 +22,7 @@
   background-color: #1e1e1e;
   border: 1px solid #808080;
   border-radius: 20px;
-  padding: 2.5rem;
+  padding: 2rem;
 }
 
 /* Left Column - Mainasu and Members */
@@ -94,15 +94,13 @@
   gap: 1.5rem;
 }
 
-/* ...existing code... */
-
 .about-member-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   position: relative;
   padding-right: 100px;
-  min-height: 60px;
+  min-height: 90px;
 }
 
 .about-member-avatar {
@@ -309,5 +307,219 @@
     right: auto;
     position: relative;
     margin-left: -10px;
+  }
+}
+
+/* ========================================
+   SUPPORTER ANIMATED BORDER (Wrapper Div Method)
+   ======================================== */
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Outer container - Animated gradient border */
+.about-member-item.supporter {
+  position: relative;
+  padding: 2px; /* Border thickness */
+  background: conic-gradient(
+    from var(--angle),
+    rgba(255, 255, 255, 0.062),
+    rgba(255, 255, 255, 0.637)
+  );
+  border-radius: 12px;
+  animation: spin 3s linear infinite;
+  display: block; /* Override flex from base class */
+  min-height: 90px;
+}
+
+/* Inner wrapper - Solid background (hides gradient) */
+.about-member-item.supporter .about-member-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  padding-right: 100px;
+  min-height: 90px;
+  background: #1e1e1e; /* Solid background to hide gradient */
+  border-radius: 10px;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+}
+
+/* Non-supporter structure - NO WRAPPER DIV */
+.about-member-item:not(.supporter) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  padding-right: 100px;
+  min-height: 90px;
+}
+
+/* Common styles for both supporter and non-supporter */
+.about-member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #2a2a2a;
+  margin-left: 6px;
+}
+
+.about-member-item.supporter .about-member-avatar {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.about-member-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.about-member-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.about-member-role {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Waifu circles - Common positioning for BOTH supporter and non-supporter */
+.waifu-circles {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  height: 40px;
+  width: 80px; /* Fixed width to prevent overflow */
+}
+
+.waifu-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid #1e1e1e;
+  position: absolute;
+  transition: transform 0.2s ease, z-index 0s;
+  cursor: pointer;
+}
+
+.waifu-circle:hover {
+  transform: scale(1.15) translateY(-2px);
+  z-index: 10 !important;
+}
+
+/* Supporter waifu circles - white border on hover */
+.about-member-item.supporter .waifu-circle:hover {
+  border-color: #fff;
+}
+
+/* Non-supporter waifu circles - blue border on hover */
+.about-member-item:not(.supporter) .waifu-circle:hover {
+  border-color: #8375ff;
+}
+
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Supporter Badge */
+.about-member-item .supporter-badge {
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.4);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  white-space: nowrap;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .about-member-item.supporter {
+    padding: 2px;
+    min-height: 84px;
+  }
+
+  .about-member-item.supporter .about-member-inner {
+    padding-right: 90px;
+  }
+
+  .about-member-item:not(.supporter) {
+    padding-right: 90px;
+  }
+
+  .about-member-item .supporter-badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    top: -6px;
+    right: 6px;
+  }
+
+  .waifu-circles {
+    right: 5px;
+    width: 70px;
+  }
+
+  .waifu-circle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-member-item.supporter .about-member-inner {
+    padding-right: 80px;
+  }
+
+  .about-member-item:not(.supporter) {
+    padding-right: 80px;
+  }
+
+  .about-member-item .supporter-badge {
+    right: 5px;
+  }
+
+  .waifu-circles {
+    right: 5px;
+    width: 60px;
+  }
+
+  .waifu-circle {
+    width: 32px;
+    height: 32px;
   }
 }
