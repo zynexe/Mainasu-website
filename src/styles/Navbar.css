@@ -1,9 +1,10 @@
 .page-navbar {
-  background: transparent;
-
+  background: transparent; /* Changed from transparent */
   padding: 1rem 3rem;
-  position: sticky;
+  position: fixed; /* Changed from sticky to fixed */
   top: 0;
+  left: 0; /* ADD THIS */
+  right: 0; /* ADD THIS */
   z-index: 100;
 }
 
@@ -20,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  cursor: pointer;                                           
+  cursor: pointer;
   transition: opacity 0.3s ease;
 }
 
