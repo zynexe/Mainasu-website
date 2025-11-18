@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
 import MobileNavbar from "../components/MobileNavbar";
@@ -11,6 +12,9 @@ import gallery from "../assets/gallery.png";
 import logo from "../assets/logo.png";
 import purpleBlob from "../assets/purple-blob.webp";
 import blueBlob from "../assets/blue-blob.webp";
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 interface Photo {
   id: string;
@@ -69,7 +73,7 @@ const Home = () => {
     }
   };
 
-  // Navigation cards animation
+  // Animate cards when they come into view
   useEffect(() => {
     cardsRef.current.forEach((card, index) => {
       if (card) {
@@ -82,22 +86,34 @@ const Home = () => {
           {
             clipPath: "inset(0 0% 0 0)",
             opacity: 1,
-            duration: 0.4,
-            delay: index * 0.15 + 0.5,
+            duration: 0.5,
+            delay: index * 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%", // Animation starts when card is 85% down viewport
+              end: "top 50%", // Animation ends when card is 50% down viewport
+              toggleActions: "play none none none", // Only play once
+              // markers: true, // Uncomment to see trigger points (debug)
+            },
           }
         );
       }
     });
+
+    // Cleanup ScrollTrigger instances on unmount
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
   }, []);
 
-  // GSAP Blob Animation - ADD THIS
+  // GSAP Blob Animation
   useEffect(() => {
     // Animate blob-1 (purple)
     gsap.to(".blob-1", {
       x: 450,
-
-      scale: 1.15,
-      duration: 6,
+      scale: 1.25,
+      duration: 12,
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
@@ -105,9 +121,8 @@ const Home = () => {
 
     // Animate blob-2 (blue)
     gsap.to(".blob-2", {
-      x: -980,
-
-      scale: 1.2,
+      x: -180,
+      scale: 2,
       duration: 8,
       repeat: -1,
       yoyo: true,
@@ -118,7 +133,6 @@ const Home = () => {
     // Animate blob-3 (purple)
     gsap.to(".blob-3", {
       x: -1200,
-
       rotation: 90,
       scale: 1.5,
       duration: 3,
@@ -131,7 +145,6 @@ const Home = () => {
     // Animate blob-4 (blue)
     gsap.to(".blob-4", {
       x: 1000,
-
       scale: 1.3,
       duration: 4,
       repeat: -1,
@@ -143,7 +156,6 @@ const Home = () => {
     // Animate blob-5 (purple)
     gsap.to(".blob-5", {
       x: -900,
-
       rotation: -45,
       scale: 1.3,
       duration: 2,
