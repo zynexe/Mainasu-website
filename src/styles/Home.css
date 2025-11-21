@@ -94,7 +94,7 @@
 .hero-title {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
-  margin-top: 12vh;
+  margin-top: 14vh;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -107,7 +107,7 @@
 .hero-subtitle {
   font-size: clamp(1rem, 2vw, 1.25rem);
   color: #a0a0a0;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
   font-weight: 400;
 }
 
@@ -134,7 +134,7 @@
 
 .carousel-track {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   padding: 0 2rem;
   width: fit-content;
 }
@@ -142,7 +142,7 @@
 .carousel-card {
   flex-shrink: 0;
   width: 280px;
-  height: 400px;
+  height: 55vh;
   border-radius: 16px;
   overflow: hidden;
   background: #1e1e1e;
@@ -474,7 +474,7 @@
   }
 
   .carousel-track {
-    gap: 1rem;
+    gap: 0.8rem;
     padding: 0 1rem;
   }
 
