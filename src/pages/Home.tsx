@@ -402,10 +402,10 @@ const Home = () => {
           {/* Hero Content */}
           <div className="hero-content">
             <h1 ref={heroTitleRef} className="hero-title">
-              This hero section doesn't have a purpose
+              The Official Mainasu Website
             </h1>
             <p ref={heroSubtitleRef} className="hero-subtitle">
-              Made this just to train my designing skills. Cause why not
+             Mainasu website before gta 6?! Unemployement hits hard dawg🥀
             </p>
 
             {/* Carousel */}
@@ -471,9 +471,9 @@ const Home = () => {
 
         {/* Main Content - Navigation Cards */}
         <main ref={navCardsRef} className="main-content">
-          <h1 className="welcome-text">Welcome Asu..</h1>
+          <h1 className="welcome-text">Quick Navigations</h1>
           <h2 className="welcome-subtext">
-            This is the official Mainasu website.
+            See gallery, rate songs, claim waifus, and learn about us.
           </h2>
 
           <div className="cards-grid">
