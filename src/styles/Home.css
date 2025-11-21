@@ -94,7 +94,7 @@
 .hero-title {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
-  margin-top: 2rem;
+  margin-top: 12vh;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -149,6 +149,8 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  clip-path: inset(100% 0 0 0);
+  opacity: 0;
 }
 
 .carousel-card::before {

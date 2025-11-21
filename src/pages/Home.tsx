@@ -26,6 +26,9 @@ const Home = () => {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
   const navCardsRef = useRef<HTMLDivElement>(null);
+  const heroTitleRef = useRef<HTMLHeadingElement>(null);
+  const heroSubtitleRef = useRef<HTMLParagraphElement>(null);
+  const carouselCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
@@ -42,36 +45,124 @@ const Home = () => {
     try {
       console.log("🔍 Fetching photos from 'jalan' category...");
 
-      const { data, error } = await supabase
-        .from("photos")
-        .select("id, image_url")
-        .eq("category", "jalan") // Changed from "jalan-jalan" to "jalan"
-        .limit(10);
+      // Get cached photos if available (within session)
+      const cacheKey = 'jalan_photos_cache';
+      const cacheTimeKey = 'jalan_photos_cache_time';
+      const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+      
+      const cachedData = sessionStorage.getItem(cacheKey);
+      const cacheTime = sessionStorage.getItem(cacheTimeKey);
+      
+      let allPhotos: Photo[] = [];
+      
+      // Use cache if valid
+      if (cachedData && cacheTime && Date.now() - parseInt(cacheTime) < cacheExpiry) {
+        console.log("📦 Using cached photos");
+        allPhotos = JSON.parse(cachedData);
+      } else {
+        // Fetch from database
+        const { data, error } = await supabase
+          .from("photos")
+          .select("id, image_url")
+          .eq("category", "jalan");
 
-      console.log("📊 Query result:", {
-        found: data?.length || 0,
-        error: error?.message,
-      });
+        if (error) throw error;
+        
+        allPhotos = data || [];
+        
+        // Cache the results
+        sessionStorage.setItem(cacheKey, JSON.stringify(allPhotos));
+        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
+        console.log("💾 Cached photos for future use");
+      }
 
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
+      if (allPhotos.length === 0) {
         console.warn("⚠️ No photos found in 'jalan' category");
         setPhotos([]);
         return;
       }
 
-      // Shuffle and select random photos
-      const shuffled = data.sort(() => Math.random() - 0.5);
-      console.log("✅ Loaded photos:", shuffled.length);
+      // Shuffle using Fisher-Yates algorithm (efficient)
+      const shuffled = [...allPhotos];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      
+      // Take first 10 for display
+      const selectedPhotos = shuffled.slice(0, 10);
+      console.log("✅ Loaded and shuffled photos:", selectedPhotos.length);
 
-      setPhotos(shuffled);
+      setPhotos(selectedPhotos);
     } catch (error) {
       console.error("❌ Error fetching photos:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Hero text animation on mount
+  useEffect(() => {
+    // Animate hero title (left to right slice)
+    if (heroTitleRef.current) {
+      gsap.fromTo(
+        heroTitleRef.current,
+        {
+          clipPath: "inset(0 100% 0 0)",
+          opacity: 0,
+        },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 1,
+          ease: "ease.out",
+        }
+      );
+    }
+
+    // Animate hero subtitle (left to right slice with delay)
+    if (heroSubtitleRef.current) {
+      gsap.fromTo(
+        heroSubtitleRef.current,
+        {
+          clipPath: "inset(0 100% 0 0)",
+          opacity: 0,
+        },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 1,
+          delay: 0.4,
+          ease: "ease.out",
+        }
+      );
+    }
+  }, []);
+
+  // Carousel cards animation when photos load
+  useEffect(() => {
+    if (photos.length === 0 || loading) return;
+
+    // Animate carousel cards (bottom to top with stagger)
+    carouselCardsRef.current.forEach((card, index) => {
+      if (card) {
+        gsap.fromTo(
+          card,
+          {
+            clipPath: "inset(100% 0 0 0)",
+            opacity: 0,
+          },
+          {
+            clipPath: "inset(0% 0 0 0)",
+            opacity: 1,
+            duration: 1,
+            delay: index * 0.15, // Stagger delay for each card
+            ease: "ease.out",
+          }
+        );
+      }
+    });
+  }, [photos, loading]);
 
   // Animate cards when they come into view
   useEffect(() => {
@@ -91,10 +182,9 @@ const Home = () => {
             ease: "power2.out",
             scrollTrigger: {
               trigger: card,
-              start: "top 85%", // Animation starts when card is 85% down viewport
-              end: "top 50%", // Animation ends when card is 50% down viewport
-              toggleActions: "play none none none", // Only play once
-              // markers: true, // Uncomment to see trigger points (debug)
+              start: "top 85%",
+              end: "top 50%",
+              toggleActions: "play none none none",
             },
           }
         );
@@ -171,7 +261,7 @@ const Home = () => {
     if (!carouselRef.current) return;
 
     const carousel = carouselRef.current;
-    let scrollInterval: number; // Changed from NodeJS.Timeout
+    let scrollInterval: number;
 
     const startAutoScroll = () => {
       scrollInterval = window.setInterval(() => {
@@ -191,7 +281,7 @@ const Home = () => {
 
     startAutoScroll();
 
-    return () => window.clearInterval(scrollInterval); // Added window.
+    return () => window.clearInterval(scrollInterval);
   }, [photos]);
 
   // Carousel drag handlers
@@ -263,7 +353,7 @@ const Home = () => {
     });
   };
 
-  // CDN helper - FIXED VERSION
+  // CDN helper
   const getCDNImageUrl = (supabaseUrl: string): string => {
     const CDN_URL = "https://cdn.mainasu.my.id";
     const USE_CDN = true;
@@ -286,7 +376,6 @@ const Home = () => {
         return supabaseUrl;
       }
 
-      // Use same format as Gallery.tsx
       return `${CDN_URL}/${bucketName}/${imagePath}?width=800&quality=85`;
     } catch (error) {
       console.error("Error parsing URL:", error);
@@ -312,10 +401,10 @@ const Home = () => {
 
           {/* Hero Content */}
           <div className="hero-content">
-            <h1 className="hero-title">
+            <h1 ref={heroTitleRef} className="hero-title">
               This hero section doesn't have a purpose
             </h1>
-            <p className="hero-subtitle">
+            <p ref={heroSubtitleRef} className="hero-subtitle">
               Made this just to train my designing skills. Cause why not
             </p>
 
@@ -337,7 +426,13 @@ const Home = () => {
                 <div className="carousel-track">
                   {/* Duplicate images for infinite effect */}
                   {[...photos, ...photos].map((photo, index) => (
-                    <div key={`${photo.id}-${index}`} className="carousel-card">
+                    <div
+                      key={`${photo.id}-${index}`}
+                      ref={(el) => {
+                        carouselCardsRef.current[index] = el;
+                      }}
+                      className="carousel-card"
+                    >
                       <img
                         src={getCDNImageUrl(photo.image_url)}
                         alt="Jalan-jalan"
