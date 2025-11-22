@@ -363,7 +363,17 @@ const ChangeUser = () => {
         }}
         onSubmit={handleEditUser}
         editMode={true}
-        initialData={selectedUser || undefined}
+        initialData={
+          selectedUser
+            ? {
+                id: selectedUser.id,
+                name: selectedUser.name,
+                role: selectedUser.role,
+                avatar_url: selectedUser.avatar_url,
+                is_supporter: selectedUser.is_supporter, // Pass supporter status
+              }
+            : undefined
+        }
       />
     </>
   );

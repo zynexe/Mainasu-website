@@ -49,32 +49,38 @@ const Waifu = () => {
   ): string => {
     if (!USE_CDN || !supabaseUrl) return supabaseUrl;
 
+    const isGif = supabaseUrl.toLowerCase().endsWith(".gif");
+
     // Size configurations
     const sizes = {
-      avatar: 200, // For user avatars (small)
-      waifu: 600, // For waifu cards
-      full: 1280, // For modal/full view
+      avatar: 200,
+      waifu: 600,
+      full: 1280,
     };
 
     // Parse Supabase URL to extract bucket and path
     try {
       const url = new URL(supabaseUrl);
       const pathParts = url.pathname.split("/");
-
-      // Find 'public' in path and get bucket name after it
       const publicIndex = pathParts.indexOf("public");
+
       if (publicIndex === -1 || publicIndex >= pathParts.length - 1) {
-        return supabaseUrl; // Invalid format
+        return supabaseUrl;
       }
 
       const bucketName = pathParts[publicIndex + 1];
       const imagePath = pathParts.slice(publicIndex + 2).join("/");
 
       if (!bucketName || !imagePath) {
-        return supabaseUrl; // Missing bucket or path
+        return supabaseUrl;
       }
 
-      // Return CDN URL with optimization
+      // For GIFs: use CDN but don't optimize (just serve as-is)
+      if (isGif) {
+        return `${CDN_URL}/${bucketName}/${imagePath}`;
+      }
+
+      // For static images: apply optimization
       return `${CDN_URL}/${bucketName}/${imagePath}?width=${sizes[size]}&quality=80`;
     } catch (error) {
       console.error("Error parsing Supabase URL:", error);
@@ -513,7 +519,7 @@ const Waifu = () => {
                             <div className="add-text">
                               <h4>Add Mybini</h4>
                               <p>
-                                Max 500KB (png/jpg)
+                                Max 2MB (JPG/PNG/GIF)
                                 <br />
                                 {member.maxWaifus - member.waifus.length} slots
                                 left

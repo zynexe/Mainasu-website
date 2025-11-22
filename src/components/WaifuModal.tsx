@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Upload, Trash2 } from "lucide-react";
+import { validateFile, compressImage } from "../lib/imageUpload";
 import "../styles/Waifu.css";
 
 interface AddWaifuModalProps {
@@ -24,6 +25,7 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>(initialData?.image || "");
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   // Update form when initialData changes
   useEffect(() => {
@@ -43,46 +45,51 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
   // Manage body scroll when modal is open/closed
   useEffect(() => {
     if (isOpen) {
-      // Prevent body scroll when modal opens
       document.body.classList.add("modal-open");
       document.body.style.overflow = "hidden";
     } else {
-      // Restore body scroll when modal closes
       document.body.classList.remove("modal-open");
       document.body.style.overflow = "";
     }
 
-    // Cleanup on unmount
     return () => {
       document.body.classList.remove("modal-open");
       document.body.style.overflow = "";
     };
   }, [isOpen]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (1MB = 1000000 bytes)
-      if (file.size > 1000000) {
-        setError("File size must be less than 1MB");
-        return;
-      }
+    if (!file) return;
 
-      // Check file type
-      if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-        setError("Only PNG and JPG files are allowed");
-        return;
-      }
+    // Validate file (all users can upload GIF for waifus)
+    const validation = validateFile(file, true); // true = allow GIF
+    if (!validation.valid) {
+      setError(validation.error || "Invalid file");
+      e.target.value = "";
+      return;
+    }
 
+    try {
+      setUploading(true);
       setError("");
-      setImageFile(file);
+
+      // Compress image (automatically skips GIFs)
+      const compressedFile = await compressImage(file);
+
+      setImageFile(compressedFile);
 
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      setError("Failed to process image");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -159,13 +166,14 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
           </div>
 
           <div className="form-group">
-            <label>Image (Max 500KB, PNG/JPG)</label>
+            <label>Image (Max 2MB • JPG, PNG, GIF)</label>
             <div className="image-upload">
               <input
                 type="file"
-                accept="image/png,image/jpeg,image/jpg"
+                accept="image/png,image/jpeg,image/jpg,image/gif"
                 onChange={handleImageChange}
                 id="waifu-image-input"
+                disabled={uploading}
               />
               <label htmlFor="waifu-image-input" className="upload-label">
                 {preview ? (
@@ -178,6 +186,11 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
                 )}
               </label>
             </div>
+            {uploading && (
+              <p style={{ color: "#667eea", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                Processing image...
+              </p>
+            )}
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -193,8 +206,8 @@ const AddWaifuModal: React.FC<AddWaifuModalProps> = ({
                 Delete
               </button>
             )}
-            <button type="submit" className="submit-btn">
-              {editMode ? "Update Mybini" : "Add Mybini"}
+            <button type="submit" className="submit-btn" disabled={uploading}>
+              {uploading ? "Processing..." : editMode ? "Update Mybini" : "Add Mybini"}
             </button>
           </div>
         </form>

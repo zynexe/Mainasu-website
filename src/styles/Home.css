@@ -142,7 +142,7 @@
 .carousel-card {
   flex-shrink: 0;
   width: 280px;
-  height: 55vh;
+  height: 50vh;
   border-radius: 16px;
   overflow: hidden;
   background: #1e1e1e;
@@ -322,7 +322,7 @@
 }
 
 .card-title {
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
   font-weight: 500;
   letter-spacing: -0.02em;
 }
@@ -435,6 +435,7 @@
   }
 
   .hero-title {
+    margin-top: 1rem;
     font-size: 2rem;
   }
 
@@ -494,10 +495,11 @@
 
   .cards-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .nav-card {
-    padding: 2rem;
+    padding: 1.25rem;
   }
 
   .footer {
@@ -534,6 +536,7 @@
   .card-icon {
     opacity: 1;
     transform: translateX(0);
+    max-width: 60px;
   }
 }
 

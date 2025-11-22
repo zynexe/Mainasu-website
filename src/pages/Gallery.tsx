@@ -69,7 +69,7 @@ const Gallery = () => {
 
   // CDN Configuration
   const CDN_URL = "https://cdn.mainasu.my.id";
-  const USE_CDN = true; // Set to false to disable CDN
+  const USE_CDN = true;
 
   // Helper function to convert Supabase URL to CDN URL
   const getCDNImageUrl = (
@@ -80,9 +80,9 @@ const Gallery = () => {
 
     // Size configurations
     const sizes = {
-      thumbnail: 600, // For gallery grid
-      medium: 1280, // For inspect modal
-      full: 1920, // For download (if needed)
+      thumbnail: 600,
+      medium: 1280,
+      full: 1920,
     };
 
     try {
@@ -91,7 +91,6 @@ const Gallery = () => {
       const pathParts = url.pathname.split("/");
 
       // Find 'public' in path to locate bucket name
-      // Example: /storage/v1/object/public/gallery-photos/user-id/category/image.jpg
       const publicIndex = pathParts.indexOf("public");
 
       if (publicIndex === -1 || publicIndex >= pathParts.length - 2) {

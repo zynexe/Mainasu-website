@@ -16,7 +16,8 @@ export interface User {
   name: string;
   role: string;
   avatar_url: string | null;
-  is_supporter?: boolean; 
+  is_supporter?: boolean;
+  allowed_file_types?: string[];
 }
 
 export interface Waifu {

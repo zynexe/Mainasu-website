@@ -29,9 +29,7 @@ interface Member {
   waifus?: Waifu[];
 }
 
-// ========================================
-// CDN Configuration - ADD THIS SECTION
-// ========================================
+//CDN Configuration
 const CDN_URL = "https://cdn.mainasu.my.id";
 const USE_CDN = true;
 
@@ -40,6 +38,11 @@ const getCDNImageUrl = (
   size: "avatar" | "waifu" = "avatar"
 ): string => {
   if (!USE_CDN || !supabaseUrl) return supabaseUrl || "/default-avatar.png";
+
+  // Check if the URL is a GIF - return original URL without CDN processing
+  if (supabaseUrl.toLowerCase().endsWith(".gif")) {
+    return supabaseUrl;
+  }
 
   try {
     const url = new URL(supabaseUrl);
@@ -68,9 +71,6 @@ const getCDNImageUrl = (
     return supabaseUrl || "/default-avatar.png";
   }
 };
-// ========================================
-// END CDN Configuration
-// ========================================
 
 const About = () => {
   const [members, setMembers] = useState<Member[]>([]);

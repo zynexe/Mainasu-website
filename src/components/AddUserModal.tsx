@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/AddUserModal.css";
+import { validateFile, compressImage } from "../lib/imageUpload";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -7,9 +8,11 @@ interface AddUserModalProps {
   onSubmit: (data: { name: string; role: string; image: File | null }) => void;
   editMode?: boolean;
   initialData?: {
+    id?: string;
     name: string;
     role: string;
     avatar_url: string | null;
+    is_supporter?: boolean;
   };
 }
 
@@ -24,6 +27,9 @@ const AddUserModal = ({
   const [role, setRole] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const isSupporter = initialData?.is_supporter || false;
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -31,9 +37,8 @@ const AddUserModal = ({
       setName(initialData.name);
       setRole(initialData.role);
       setPreviewUrl(initialData.avatar_url);
-      setImage(null); // Reset image file
+      setImage(null);
     } else {
-      // Reset form when adding new user
       setName("");
       setRole("");
       setImage(null);
@@ -41,13 +46,34 @@ const AddUserModal = ({
     }
   }, [editMode, initialData, isOpen]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
+    if (!file) return;
+
+    // Validate file
+    const validation = validateFile(file, isSupporter);
+    if (!validation.valid) {
+      alert(validation.error);
+      e.target.value = ""; // Reset input
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      // Compress image (skips GIFs automatically)
+      const compressedFile = await compressImage(file);
+
+      setImage(compressedFile);
+
       // Create preview URL
-      const url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(compressedFile);
       setPreviewUrl(url);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      alert("Failed to process image");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -59,7 +85,6 @@ const AddUserModal = ({
       return;
     }
 
-    // If editing and no new image selected, pass null (keep existing image)
     onSubmit({ name: name.trim(), role: role.trim(), image });
 
     // Reset form
@@ -70,7 +95,6 @@ const AddUserModal = ({
   };
 
   const handleClose = () => {
-    // Reset form on close
     setName("");
     setRole("");
     setImage(null);
@@ -123,13 +147,35 @@ const AddUserModal = ({
             <input
               type="file"
               id="image"
-              accept="image/*"
+              accept={
+                isSupporter
+                  ? "image/jpeg,image/png,image/gif"
+                  : "image/jpeg,image/png"
+              }
               onChange={handleImageChange}
+              disabled={uploading}
             />
+            <p className="file-hint">
+              Max 2MB •{" "}
+              {isSupporter
+                ? "JPG, PNG, GIF allowed"
+                : "JPG, PNG only (GIF for supporters)"}
+            </p>
             {previewUrl && (
               <div className="image-preview">
                 <img src={previewUrl} alt="Preview" />
               </div>
+            )}
+            {uploading && (
+              <p
+                style={{
+                  color: "#667eea",
+                  fontSize: "0.85rem",
+                  marginTop: "0.5rem",
+                }}
+              >
+                Processing image...
+              </p>
             )}
           </div>
 
@@ -137,8 +183,12 @@ const AddUserModal = ({
             <button type="button" className="cancel-btn" onClick={handleClose}>
               Cancel
             </button>
-            <button type="submit" className="submit-btn">
-              {editMode ? "Update User" : "Add User"}
+            <button type="submit" className="submit-btn" disabled={uploading}>
+              {uploading
+                ? "Processing..."
+                : editMode
+                ? "Update User"
+                : "Add User"}
             </button>
           </div>
         </form>
