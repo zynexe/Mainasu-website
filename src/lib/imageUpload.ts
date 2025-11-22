@@ -39,14 +39,15 @@ export const compressImage = async (file: File): Promise<File> => {
   }
 
   const options = {
-    maxSizeMB: 1.8, // Slightly under 2MB to account for metadata
-    maxWidthOrHeight: 1024,
+    maxSizeMB: 1.8, // Target 1.8MB to stay safely under 2MB
+    maxWidthOrHeight: 1920, // Increased from 1024 for better quality
     useWebWorker: true,
     fileType: file.type as "image/jpeg" | "image/png",
   };
 
   try {
     const compressedFile = await imageCompression(file, options);
+    console.log(`Compressed: ${file.size} → ${compressedFile.size} bytes`);
     return compressedFile;
   } catch (error) {
     console.error("Error compressing image:", error);
@@ -66,6 +67,8 @@ export const uploadAvatar = async (
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
     const filePath = `${fileName}`;
 
+    console.log(`Uploading: ${fileName} (${file.size} bytes)`);
+
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from("avatars")
@@ -74,7 +77,10 @@ export const uploadAvatar = async (
         upsert: true,
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw uploadError;
+    }
 
     // Get public URL
     const {
