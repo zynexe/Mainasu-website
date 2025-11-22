@@ -7,6 +7,7 @@
 
 .about-content {
   padding: 3rem;
+  padding-top: 6rem; /* Add top padding to account for fixed navbar */
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -40,10 +41,29 @@
   grid-column: 2;
   grid-row: 1 / 3;
   position: sticky;
-  top: 6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  top: 2rem; /* Reduced from 6rem - navbar is fixed, not part of scroll */
+  max-height: calc(100vh - 4rem); /* Adjust max height */
+  overflow-y: auto;
+  align-self: start;
+}
+
+/* Custom scrollbar for credit box */
+.credit-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.credit-box::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.credit-box::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 3px;
+}
+
+.credit-box::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.7);
 }
 
 /* Mainasu Box */
@@ -143,8 +163,6 @@
   white-space: nowrap;
 }
 
-/* ...existing code... */
-
 /* Waifu Circles (Overlapping Design) */
 .waifu-circles {
   position: absolute;
@@ -234,6 +252,11 @@
     grid-template-columns: 1fr 350px;
   }
 
+  .credit-box {
+    top: 2rem;
+    max-height: calc(100vh - 4rem);
+  }
+
   .members-grid {
     grid-template-columns: 1fr;
   }
@@ -246,6 +269,7 @@
 @media (max-width: 1024px) {
   .about-content {
     padding: 2rem;
+    padding-top: 5rem; /* Adjust for mobile navbar */
   }
 
   .about-grid {
@@ -260,8 +284,9 @@
   }
 
   .credit-box {
-    position: relative;
+    position: relative; /* Remove sticky on tablet/mobile */
     top: 0;
+    max-height: none;
   }
 
   .members-grid {
@@ -272,7 +297,7 @@
 @media (max-width: 768px) {
   .about-content {
     padding: 1.5rem;
-    margin-top: 6rem;
+    margin-top: 6rem; /* Keep existing mobile spacing */
   }
 
   .about-box {

@@ -121,8 +121,7 @@
 }
 
 .add-photos-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  background: #e5e5e5;
 }
 
 .add-photo-icon {
@@ -470,8 +469,9 @@
 .upload-icon-img {
   width: 48px;
   height: 48px;
-  margin-bottom: 0.75rem;
+  margin: 0 auto 0.75rem auto; /* Center horizontally with margin auto */
   opacity: 0.7;
+  display: block; /* Make it a block element for margin auto to work */
 }
 
 .file-upload-label:hover .upload-icon-img {
@@ -483,12 +483,16 @@
   font-size: 1rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
+  display: block; /* Ensure proper stacking */
+  width: 100%; /* Full width for centering */
 }
 
 .file-upload-label p {
   margin: 0;
   color: #9ca3af;
   font-size: 0.85rem;
+  display: block; /* Ensure proper stacking */
+  width: 100%; /* Full width for centering */
 }
 
 .error-message {

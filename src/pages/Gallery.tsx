@@ -697,6 +697,7 @@ const Gallery = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
         categories={categories}
+        defaultCategory={selectedCategory} // ✅ Pass current category
       />
 
       {/* Inspect Photo Modal */}

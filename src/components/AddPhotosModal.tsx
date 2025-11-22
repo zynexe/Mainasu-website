@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import imageCompression from "browser-image-compression";
 import "../styles/Gallery.css";
 import fileIcon from "../assets/file.svg";
@@ -8,6 +8,7 @@ interface AddPhotosModalProps {
   onClose: () => void;
   onSubmit: (data: { category: string; files: File[] }) => Promise<void>;
   categories: Array<{ id: string; name: string; label: string }>;
+  defaultCategory?: string; // ✅ Add optional prop
 }
 
 const AddPhotosModal = ({
@@ -15,9 +16,10 @@ const AddPhotosModal = ({
   onClose,
   onSubmit,
   categories,
+  defaultCategory, // ✅ Destructure new prop
 }: AddPhotosModalProps) => {
   const [selectedCategory, setSelectedCategory] = useState(
-    categories[0]?.id || ""
+    defaultCategory || categories[0]?.id || ""
   );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -25,6 +27,13 @@ const AddPhotosModal = ({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState<string>("");
+
+  // ✅ Update selectedCategory when defaultCategory changes
+  useEffect(() => {
+    if (defaultCategory) {
+      setSelectedCategory(defaultCategory);
+    }
+  }, [defaultCategory, isOpen]);
 
   const formatFileSize = (bytes: number): string => {
     return (bytes / (1024 * 1024)).toFixed(2) + " MB";
@@ -139,8 +148,8 @@ const AddPhotosModal = ({
     // Clean up preview URLs
     previews.forEach((preview) => URL.revokeObjectURL(preview));
 
-    // Reset all state
-    setSelectedCategory(categories[0]?.id || "");
+    // Reset all state - ✅ Use defaultCategory or fallback to first category
+    setSelectedCategory(defaultCategory || categories[0]?.id || "");
     setSelectedFiles([]);
     setPreviews([]);
     setError("");
