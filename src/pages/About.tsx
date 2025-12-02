@@ -3,7 +3,6 @@ import { supabase } from "../lib/supabase";
 import Navbar from "../components/Navbar";
 import MobileNavbar from "../components/MobileNavbar";
 import "../styles/About.css";
-import logo from "../assets/logo.png";
 import zynexe from "../assets/zynexe-profile-pic.jpg";
 import founder from "../assets/founder.webp";
 import personIcon from "../assets/Founder2.webp";
@@ -13,6 +12,7 @@ import supabaseIcon from "../assets/supabase-icon.webp";
 import cssIcon from "../assets/css3-icon.webp";
 import vercelIcon from "../assets/vercel-icon.webp";
 import caffeineIcon from "../assets/caffeine-icon.webp";
+import DOMPurify from "dompurify";
 
 interface Waifu {
   id: string;
@@ -132,125 +132,116 @@ const About = () => {
       <Navbar />
       <MobileNavbar />
 
-      <main className="about-content">
+      <div className="about-content">
         <div className="about-grid">
-          {/* Mainasu Info Box */}
-          <div className="about-box mainasu-box">
-            <div className="box-header">
-              <img src={logo} alt="Mainasu" className="mainasu-logo" />
-              <div className="mainasu-info">
-                <h2 className="mainasu-title">Mainasu</h2>
-                <p className="mainasu-subtitle">Founded in 2020</p>
-              </div>
-            </div>
-            <p className="mainasu-description">
-              The name "Mainasu" came from the word "main" and "asu" which means
-              "come play bitches". The name is chosen so that friends that are
-              close enough to get called "asu" could play together, we belive in
-              hating our own friends for a long lasting friendship and the study
-              show that!
-            </p>
-          </div>
-
           {/* Members Box */}
-          <div className="about-box members-box">
-            <h3 className="box-title">Members</h3>
-            {members.length === 0 ? (
-              <p
-                style={{ color: "#888", textAlign: "center", padding: "2rem" }}
-              >
-                No members yet. Add members in Change User page.
-              </p>
-            ) : (
-              <div className="members-grid">
-                {members.map((member) => (
-                  <div
-                    key={member.id}
-                    className={`about-member-item ${
-                      member.is_supporter ? "supporter" : ""
-                    }`}
-                  >
-                    {/* Only supporters get the inner wrapper */}
-                    {member.is_supporter ? (
-                      <div className="about-member-inner">
-                        <span className="supporter-badge">Supporter</span>
+          <div className="members-box about-box">
+            <h2 className="box-title">Our Team</h2>
+            <div className="members-grid">
+              {members.map((member) => (
+                <div key={member.id} className="about-member-item">
+                  {/* Only supporters get the inner wrapper */}
+                  {member.is_supporter ? (
+                    <div className="about-member-inner">
+                      <span className="supporter-badge">Supporter</span>
 
-                        <img
-                          src={getCDNImageUrl(
-                            member.avatar_url || "/default-avatar.png",
-                            "avatar"
-                          )}
-                          alt={member.name}
-                          className="about-member-avatar"
-                        />
-
-                        <div className="about-member-info">
-                          <h3 className="about-member-name">{member.name}</h3>
-                          <p className="about-member-role">{member.role}</p>
-                        </div>
-
-                        {member.waifus && member.waifus.length > 0 && (
-                          <div className="waifu-circles">
-                            {member.waifus.slice(0, 4).map((waifu, index) => (
-                              <div
-                                key={waifu.id}
-                                className="waifu-circle"
-                                style={{
-                                  backgroundImage: `url(${getCDNImageUrl(
-                                    waifu.image_url,
-                                    "waifu"
-                                  )})`,
-                                  right: `${index * 30}px`,
-                                  zIndex: 4 - index,
-                                }}
-                                title={waifu.name}
-                              />
-                            ))}
-                          </div>
+                      <img
+                        src={getCDNImageUrl(
+                          member.avatar_url || "/default-avatar.png",
+                          "avatar"
                         )}
+                        alt={member.name}
+                        className="about-member-avatar"
+                      />
+
+                      <div className="about-member-info">
+                        {/* ✅ SANITIZE OUTPUT - prevents XSS */}
+                        <h3
+                          className="about-member-name"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(member.name),
+                          }}
+                        />
+                        <p
+                          className="about-member-role"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(member.role),
+                          }}
+                        />
                       </div>
-                    ) : (
-                      // Non-supporters - NO inner wrapper
-                      <>
-                        <img
-                          src={getCDNImageUrl(
-                            member.avatar_url || "/default-avatar.png",
-                            "avatar"
-                          )}
-                          alt={member.name}
-                          className="about-member-avatar"
-                        />
 
-                        <div className="about-member-info">
-                          <h3 className="about-member-name">{member.name}</h3>
-                          <p className="about-member-role">{member.role}</p>
+                      {member.waifus && member.waifus.length > 0 && (
+                        <div className="waifu-circles">
+                          {member.waifus.slice(0, 4).map((waifu, index) => (
+                            <div
+                              key={waifu.id}
+                              className="waifu-circle"
+                              style={{
+                                backgroundImage: `url(${getCDNImageUrl(
+                                  waifu.image_url,
+                                  "waifu"
+                                )})`,
+                                right: `${index * 30}px`,
+                                zIndex: 4 - index,
+                              }}
+                              title={waifu.name}
+                            />
+                          ))}
                         </div>
-
-                        {member.waifus && member.waifus.length > 0 && (
-                          <div className="waifu-circles">
-                            {member.waifus.slice(0, 4).map((waifu, index) => (
-                              <div
-                                key={waifu.id}
-                                className="waifu-circle"
-                                style={{
-                                  backgroundImage: `url(${getCDNImageUrl(
-                                    waifu.image_url,
-                                    "waifu"
-                                  )})`,
-                                  right: `${index * 30}px`,
-                                  zIndex: 4 - index,
-                                }}
-                                title={waifu.name}
-                              />
-                            ))}
-                          </div>
+                      )}
+                    </div>
+                  ) : (
+                    // Non-supporters - NO inner wrapper
+                    <>
+                      <img
+                        src={getCDNImageUrl(
+                          member.avatar_url || "/default-avatar.png",
+                          "avatar"
                         )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                        alt={member.name}
+                        className="about-member-avatar"
+                      />
+
+                      <div className="about-member-info">
+                        {/* ✅ SANITIZE OUTPUT - prevents XSS */}
+                        <h3
+                          className="about-member-name"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(member.name),
+                          }}
+                        />
+                        <p
+                          className="about-member-role"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(member.role),
+                          }}
+                        />
+                      </div>
+
+                      {member.waifus && member.waifus.length > 0 && (
+                        <div className="waifu-circles">
+                          {member.waifus.slice(0, 4).map((waifu, index) => (
+                            <div
+                              key={waifu.id}
+                              className="waifu-circle"
+                              style={{
+                                backgroundImage: `url(${getCDNImageUrl(
+                                  waifu.image_url,
+                                  "waifu"
+                                )})`,
+                                right: `${index * 30}px`,
+                                zIndex: 4 - index,
+                              }}
+                              title={waifu.name}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Credit & Tech Stack Box */}
@@ -301,7 +292,7 @@ const About = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

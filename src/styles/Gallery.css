@@ -91,6 +91,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  margin-top: 2vh;
 }
 
 .header-left h1 {
@@ -765,6 +766,7 @@
     align-items: flex-start;
     gap: 1rem;
     width: 100%;
+    margin-top: 1rem;
   }
 
   .add-photos-btn {

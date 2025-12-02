@@ -4,9 +4,15 @@ import Navbar from "../components/Navbar";
 import MobileNavbar from "../components/MobileNavbar";
 import AddMusicModal from "../components/AddMusicModal";
 import VoteModal from "../components/VoteModal";
-import EditMusicModal from "../components/EditMusicModal"; // Add this import
+import EditMusicModal from "../components/EditMusicModal";
 import "../styles/Rating.css";
 import personIcon from "../assets/person.png";
+import {
+  sanitizeInput,
+  extractYouTubeId,
+  extractSpotifyId,
+  isValidSoundCloudUrl,
+} from "../lib/sanitize";
 
 interface Vote {
   id: string;
@@ -46,6 +52,7 @@ const Rating = () => {
     undefined
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const musicPerPage = 15;
 
@@ -277,6 +284,124 @@ const Rating = () => {
       setSortOrder("asc"); // Second click: sort ascending
     } else {
       setSortOrder(null); // Third click: remove sorting
+    }
+  };
+
+  const handleAddMusic = async (data: {
+    title: string;
+    artist: string;
+    sourceType: string;
+    file?: File;
+    url?: string;
+  }) => {
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      alert("Please select a user first");
+      return;
+    }
+
+    // ✅ PARSE THE USER OBJECT
+    const user = JSON.parse(currentUser);
+
+    try {
+      setUploading(true);
+
+      // ✅ SANITIZE INPUTS
+      const safeTitle = sanitizeInput(data.title, 100);
+      const safeArtist = sanitizeInput(data.artist, 100);
+
+      if (!safeTitle || !safeArtist) {
+        alert("Invalid title or artist");
+        return;
+      }
+
+      let audioUrl = null;
+      let embedUrl = null;
+      let duration = 0;
+
+      if (data.sourceType === "file" && data.file) {
+        const allowedTypes = [
+          "audio/mpeg",
+          "audio/mp3",
+          "audio/wav",
+          "audio/ogg",
+        ];
+        if (!allowedTypes.includes(data.file.type)) {
+          alert("Invalid audio file type. Only MP3, WAV, and OGG are allowed.");
+          return;
+        }
+
+        const maxSize = 10 * 1024 * 1024;
+        if (data.file.size > maxSize) {
+          alert("File size must be less than 10MB");
+          return;
+        }
+
+        const fileExt = data.file.name.split(".").pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`; // ✅ Use user.id
+
+        const { error: uploadError } = await supabase.storage
+          .from("music")
+          .upload(fileName, data.file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("music")
+          .getPublicUrl(fileName);
+
+        audioUrl = urlData.publicUrl;
+
+        const audio = new Audio(URL.createObjectURL(data.file));
+        duration = await new Promise((resolve) => {
+          audio.onloadedmetadata = () => resolve(audio.duration);
+        });
+      } else if (data.url) {
+        if (data.sourceType === "youtube") {
+          const videoId = extractYouTubeId(data.url);
+          if (!videoId) {
+            alert("Invalid YouTube URL");
+            return;
+          }
+          embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        } else if (data.sourceType === "spotify") {
+          const trackId = extractSpotifyId(data.url);
+          if (!trackId) {
+            alert("Invalid Spotify URL");
+            return;
+          }
+          embedUrl = `https://open.spotify.com/embed/track/${trackId}`;
+        } else if (data.sourceType === "soundcloud") {
+          if (!isValidSoundCloudUrl(data.url)) {
+            alert("Invalid SoundCloud URL");
+            return;
+          }
+          embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(
+            data.url
+          )}`;
+        }
+      }
+
+      const { error } = await supabase.from("music").insert({
+        title: safeTitle,
+        artist: safeArtist,
+        source_type: data.sourceType,
+        audio_url: audioUrl,
+        embed_url: embedUrl,
+        duration: Math.round(duration),
+        uploaded_by: user.id, // ✅ Use user.id
+      });
+
+      if (error) throw error;
+
+      alert("Music added successfully!");
+      setIsAddMusicModalOpen(false);
+      fetchMusic();
+    } catch (error) {
+      console.error("Error adding music:", error);
+      alert("Failed to add music");
+    } finally {
+      setUploading(false);
     }
   };
 

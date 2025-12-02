@@ -5,6 +5,7 @@ import MobileNavbar from "../components/MobileNavbar";
 import WaifuSearchbar from "../components/Searchbar";
 import AddWaifuModal from "../components/WaifuModal";
 import { supabase } from "../lib/supabase";
+import { sanitizeInput, sanitizeFileName } from "../lib/sanitize";
 import type { User } from "../lib/supabase";
 import addIcon from "../assets/add-icon.webp";
 import "../styles/Waifu.css";
@@ -144,12 +145,13 @@ const Waifu = () => {
 
   const uploadWaifuImage = async (file: File): Promise<string | null> => {
     try {
-      setUploading(true);
-
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2)}.${fileExt}`;
+      // ✅ SANITIZE FILENAME
+      const originalName = file.name.split(".")[0];
+      const extension = file.name.split(".").pop();
+      const safeName = sanitizeFileName(originalName);
+      const fileName = `${
+        currentUser?.id
+      }/${Date.now()}-${safeName}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from("waifus")
@@ -160,15 +162,14 @@ const Waifu = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from("waifus").getPublicUrl(fileName);
+      const { data: urlData } = supabase.storage
+        .from("waifus")
+        .getPublicUrl(fileName);
 
-      return data.publicUrl;
-    } catch (error: any) {
+      return urlData.publicUrl;
+    } catch (error) {
       console.error("Error uploading waifu image:", error);
-      alert(`Failed to upload image: ${error.message || "Unknown error"}`);
       return null;
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -198,65 +199,94 @@ const Waifu = () => {
     if (!currentUser) return;
 
     try {
-      if (editingWaifu) {
-        // EDIT MODE
-        let image_url = editingWaifu.image_url;
+      setUploading(true);
 
-        // Upload new image if provided
-        if (data.image) {
-          // Delete old image
-          const oldFileName = editingWaifu.image_url.split("/").pop();
-          if (oldFileName) {
-            await supabase.storage.from("waifus").remove([oldFileName]);
-          }
+      // ✅ SANITIZE TEXT INPUTS
+      const safeName = sanitizeInput(data.name, 50);
+      const safeRole = sanitizeInput(data.role, 50);
 
-          const uploadedUrl = await uploadWaifuImage(data.image);
-          if (!uploadedUrl) return; // Exit if upload failed
-          image_url = uploadedUrl; // ✅ Now TypeScript knows it's not null
+      if (!safeName || !safeRole) {
+        alert("Invalid name or role");
+        return;
+      }
+
+      let imageUrl = editingWaifu?.image_url;
+
+      // Handle image upload
+      if (data.image) {
+        // ✅ VALIDATE FILE TYPE
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+        ];
+        if (!allowedTypes.includes(data.image.type)) {
+          alert("Invalid image type");
+          return;
         }
 
-        // Update waifu in database
-        const { error } = await supabase
-          .from("waifus")
-          .update({ name: data.name, role: data.role, image_url })
-          .eq("id", editingWaifu.id);
-
-        if (error) throw error;
-
-        alert("Waifu updated successfully!");
-      } else {
-        // ADD MODE
-        if (!data.image) {
-          alert("Please upload an image");
+        // ✅ VALIDATE FILE SIZE (5MB for GIF, 2MB for others)
+        const maxSize =
+          data.image.type === "image/gif" ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+        if (data.image.size > maxSize) {
+          alert(`File size exceeds ${maxSize / (1024 * 1024)}MB limit`);
           return;
         }
 
         const uploadedUrl = await uploadWaifuImage(data.image);
-        if (!uploadedUrl) return; // Exit if upload failed
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          throw new Error("Failed to upload image");
+        }
+      }
 
-        const image_url = uploadedUrl; // ✅ Now TypeScript knows it's not null
-
-        // Insert new waifu
-        const { error } = await supabase.from("waifus").insert([
-          {
-            user_id: currentUser.id,
-            name: data.name,
-            role: data.role,
-            image_url,
-          },
-        ]);
+      if (editingWaifu) {
+        // Update existing waifu
+        const { error } = await supabase
+          .from("waifus")
+          .update({
+            name: safeName, // ✅ Sanitized
+            role: safeRole, // ✅ Sanitized
+            image_url: imageUrl,
+          })
+          .eq("id", editingWaifu.id)
+          .eq("user_id", currentUser.id); // ✅ Ensure ownership
 
         if (error) throw error;
+        alert("Waifu updated successfully!");
+      } else {
+        // Check waifu limit
+        const currentMember = members.find((m) => m.id === currentUser.id);
+        if (
+          currentMember &&
+          currentMember.waifus.length >= currentMember.maxWaifus
+        ) {
+          alert(`You can only have ${currentMember.maxWaifus} waifus`);
+          return;
+        }
 
+        // Add new waifu
+        const { error } = await supabase.from("waifus").insert({
+          name: safeName, // ✅ Sanitized
+          role: safeRole, // ✅ Sanitized
+          image_url: imageUrl,
+          user_id: currentUser.id,
+        });
+
+        if (error) throw error;
         alert("Waifu added successfully!");
       }
 
-      fetchMembersAndWaifus();
       setIsModalOpen(false);
       setEditingWaifu(null);
+      fetchMembersAndWaifus();
     } catch (error) {
       console.error("Error saving waifu:", error);
       alert("Failed to save waifu");
+    } finally {
+      setUploading(false);
     }
   };
 
